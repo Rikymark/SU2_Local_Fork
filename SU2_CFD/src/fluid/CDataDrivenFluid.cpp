@@ -181,14 +181,18 @@ void CDataDrivenFluid::MapInputs_to_Outputs() {
     outputs_LUT.push_back(&Entropy);
     LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("c2"));
     outputs_LUT.push_back(&SoundSpeed2);
-    LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dTdrho_e"));
-    outputs_LUT.push_back(&dTdrho_e);
-    LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dTde_rho"));
-    outputs_LUT.push_back(&dTde_rho);
+    LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("X"));
+    outputs_LUT.push_back(&VaporQuality);
+    //LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dTdrho_e"));
+    //outputs_LUT.push_back(&dTdrho_e);
+    //LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dTde_rho"));
+    //outputs_LUT.push_back(&dTde_rho);
     LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dpdrho_e"));
     outputs_LUT.push_back(&dPdrho_e);
     LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dpde_rho"));
     outputs_LUT.push_back(&dPde_rho);
+    LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dhdrho_p"));
+    outputs_LUT.push_back(&dhdrho_P);
     LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dhdrho_e"));
     outputs_LUT.push_back(&dhdrho_e);
     LUT_lookup_indices.push_back(lookup_table_rhoe->GetIndexOfVar("dhde_rho"));
@@ -268,12 +272,13 @@ void CDataDrivenFluid::SetTDState_rhoe(su2double rho, su2double e) {
   AD::SetPreaccOut(SoundSpeed2);
   AD::SetPreaccOut(dPde_rho);
   AD::SetPreaccOut(dPdrho_e);
-  AD::SetPreaccOut(dTde_rho);
-  AD::SetPreaccOut(dTdrho_e);
+  //AD::SetPreaccOut(dTde_rho);
+  //AD::SetPreaccOut(dTdrho_e);  n
   AD::SetPreaccOut(Pressure);
   AD::SetPreaccOut(Entropy);
   AD::SetPreaccOut(Cp);
   AD::SetPreaccOut(Cv);
+  //AD::SetPreaccOut(VapQuality);
   AD::EndPreacc();
 }
 
@@ -527,8 +532,8 @@ void CDataDrivenFluid::ComputeIdealGasQuantities() {
   T_middle = Temperature;
 
   R_idealgas = P_middle / (rho_init * T_middle);
-  Cv_idealgas = Cv;
   Cp_idealgas = Cp;
-  
+  Cv_idealgas = Cv;
+  //Cv_idealgas=Cv;
   gamma_idealgas = (R_idealgas / Cv_idealgas) + 1;
 }

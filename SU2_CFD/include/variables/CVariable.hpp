@@ -2330,6 +2330,19 @@ public:
    */
   inline virtual su2double GetEntropy(unsigned long iPoint) const { return 0; }
 
+    /*!
+   * \brief Set fluid vapor quality
+   * \param[in] iPoint - Node index
+   * \param[in] VaporQuality - fluid vapor quality value.
+   */
+  inline virtual void SetVaporQuality(unsigned long iPoint, su2double VaporQuality) { };
+
+  /*!
+   * \brief Get fluid vapor quality
+   * \param[in] iPoint - Node index
+   * \return VaporQuality - Fluid vapor quality value
+   */
+  inline virtual su2double GetVaporQuality(unsigned long iPoint) const { return 0; }
   /*!
    * \brief Set dataset extrapolation instance
    * \param[in] iPoint - Node index

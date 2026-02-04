@@ -71,11 +71,13 @@ class CDataDrivenFluid final : public CFluidModel {
             
   unsigned long MaxIter_Newton; /*!< \brief Maximum number of iterations for Newton solvers. */
 
-  su2double dsde_rho, /*!< \brief Entropy derivative w.r.t. density. */
-      dsdrho_e,       /*!< \brief Entropy derivative w.r.t. static energy. */
-      d2sde2,         /*!< \brief Entropy second derivative w.r.t. static energy. */
-      d2sdedrho,      /*!< \brief Entropy second derivative w.r.t. density and static energy. */
-      d2sdrho2;       /*!< \brief Entropy second derivative w.r.t. static density. */
+  
+  su2double dsde_rho, // !< \brief Entropy derivative w.r.t. density. 
+      dsdrho_e,       // !< \brief Entropy derivative w.r.t. static energy. 
+      d2sde2,         // !< \brief Entropy second derivative w.r.t. static energy. 
+      d2sdedrho,      // !< \brief Entropy second derivative w.r.t. density and static energy. 
+      d2sdrho2;       // !< \brief Entropy second derivative w.r.t. static density. 
+   
 
   su2double R_idealgas,     /*!< \brief Approximated ideal gas constant. */
             Cp_idealgas,    /*!< \brief Approximated ideal gas specific heat at constant pressure. */
@@ -84,9 +86,10 @@ class CDataDrivenFluid final : public CFluidModel {
             P_middle,       /*!< \brief Pressure computed from the centre of the data set. */
             T_middle;       /*!< \brief Temperature computed from the centre of the data set. */
 
-  su2double Enthalpy, /*!< \brief Fluid enthalpy value [J kg^-1] */
-      dhdrho_e,       /*!< \brief Enthalpy derivative w.r.t. density. */
-      dhde_rho;       /*!< \brief Enthalpy derivative w.r.t. static energy. */
+  
+  su2double Enthalpy, //!< \brief Fluid enthalpy value [J kg^-1] 
+      dhdrho_e,       //!< \brief Enthalpy derivative w.r.t. density. 
+      dhde_rho;       //!< \brief Enthalpy derivative w.r.t. static energy. 
 
   vector<string> input_names_rhoe, /*!< \brief Data-driven method input variable names of the independent variables
                                       (density, energy). */

@@ -137,17 +137,21 @@ bool CEulerVariable::SetPrimVar(unsigned long iPoint, CFluidModel *FluidModel) {
     SetPressure(iPoint, FluidModel->GetPressure());
     SetSoundSpeed(iPoint, FluidModel->GetSoundSpeed2());
     SetTemperature(iPoint, FluidModel->GetTemperature());
+    
+    
 
     RightVol = false;
 
   }
 
   SetEnthalpy(iPoint); // Requires pressure computation.
+  
 
   /*--- Set look-up variables in case of data-driven fluid model ---*/
   if (DataDrivenFluid) {
     SetDataExtrapolation(iPoint, FluidModel->GetExtrapolation());
     SetEntropy(iPoint, FluidModel->GetEntropy());
+    SetVaporQuality(iPoint, FluidModel->GetVaporQuality());
   }
 
   return RightVol;
