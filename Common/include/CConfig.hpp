@@ -1200,6 +1200,7 @@ private:
   unsigned short byteAlignmentMatMul;        /*!< \brief Number of bytes in the vectorization direction for the matrix multiplication. Multipe of 64. */
   unsigned short sizeMatMulPadding;          /*!< \brief The matrix size in the vectorization direction padded to a multiple of 8. Computed from byteAlignmentMatMul. */
   bool Compute_Entropy;                      /*!< \brief Whether or not to compute the entropy in the fluid model. */
+  bool Compute_VaporQuality;                 /*!< \brief Whether or not to compute the vapor quality in the fluid model. */
   bool Use_Lumped_MassMatrix_DGFEM;          /*!< \brief Whether or not to use the lumped mass matrix for DGFEM. */
   bool Jacobian_Spatial_Discretization_Only; /*!< \brief Flag to know if only the exact Jacobian of the spatial discretization must be computed. */
   bool Compute_Average;                      /*!< \brief Whether or not to compute averages for unsteady simulations in FV or DG solver. */
@@ -9453,6 +9454,12 @@ public:
    * \return The boolean whether or not the entropy must be computed.
    */
   bool GetCompute_Entropy(void) const { return Compute_Entropy; }
+
+  /*!
+   * \brief Function to make available whether or not the vapor quality must be computed.
+   * \return The boolean whether or not the vapor quality must be computed.
+   */
+  bool GetCompute_VaporQuality(void) const { return Compute_VaporQuality; }
 
   /*!
    * \brief Function to make available whether or not the lumped mass matrix

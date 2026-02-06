@@ -1978,23 +1978,6 @@ void CSolver::SetResidual_RMS(const CGeometry *geometry, const CConfig *config) 
   for (unsigned short iVar = 0; iVar < nVar; iVar++) {
 
     if (std::isnan(SU2_TYPE::GetValue(rbuf_res[iVar]))) {
-      //FOR DEBUG
-      int rank = 0;
-      #ifdef HAVE_MPI
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-      #endif
-
-        std::ofstream f("nan_residual_rank" + std::to_string(rank) + ".txt", std::ios::app);
-        f << std::setprecision(17)
-          << "NaN in rbuf_res: iVar=" << iVar
-          << " value=" << SU2_TYPE::GetValue(rbuf_res[iVar]) << "\n";
-        f.close();
-      
-      for (int j = std::max<int>(0, iVar-3); j <= std::min<int>(nVar-1, iVar+3); ++j) {
-        std::cout << "  rbuf_res[" << j << "]=" << SU2_TYPE::GetValue(rbuf_res[j]) << "\n";
-      }
-      //END DEBUG
-
       SU2_MPI::Error("SU2 has diverged (NaN detected).", CURRENT_FUNCTION);
     }
 

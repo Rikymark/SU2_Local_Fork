@@ -2506,6 +2506,8 @@ void CConfig::SetConfig_Options() {
   addDoubleOption("THETA_INTERIOR_PENALTY_DG_FEM", Theta_Interior_Penalty_DGFEM, 1.0);
   /* DESCRIPTION: Compute the entropy in the fluid model (YES, NO) */
   addBoolOption("COMPUTE_ENTROPY_FLUID_MODEL", Compute_Entropy, true);
+  /* DESCRIPTION: Compute the vapor quality in the fluid model (YES, NO) */
+  addBoolOption("COMPUTE_VAPORQUALITY_FLUID_MODEL", Compute_VaporQuality, true);
   /* DESCRIPTION: Use the lumped mass matrix for steady DGFEM computations */
   addBoolOption("USE_LUMPED_MASSMATRIX_DGFEM", Use_Lumped_MassMatrix_DGFEM, false);
   /* DESCRIPTION: Only compute the exact Jacobian of the spatial discretization (NO, YES) */
