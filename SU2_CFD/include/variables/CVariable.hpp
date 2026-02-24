@@ -2343,6 +2343,7 @@ public:
    * \return VaporQuality - Fluid vapor quality value
    */
   inline virtual su2double GetVaporQuality(unsigned long iPoint) const { return 0; }
+  
   /*!
    * \brief Set dataset extrapolation instance
    * \param[in] iPoint - Node index
