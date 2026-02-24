@@ -82,6 +82,7 @@ class CEulerVariable : public CFlowVariable {
   su2vector<unsigned short> DatasetExtrapolation; /*!< \brief Stores instances of dataset bounds violation when using data-driven fluid models. */
   su2vector<unsigned long> NIterNewtonsolver;    /*!< \brief Stores number of Newton solver iterations when using data-driven fluid models. */
   VectorType FluidEntropy;          /*!< \brief Stores the fluid entropy value as computed by the data-driven fluid model. */
+  VectorType FluidVaporQuality;     /*!< \brief Stores the fluid vapor quality value as computed by the data-driven fluid model. */
 
  public:
   /*!
@@ -323,6 +324,20 @@ class CEulerVariable : public CFlowVariable {
   inline void SetDataExtrapolation(unsigned long iPoint, unsigned short extrapolation) final {
     DatasetExtrapolation[iPoint] = extrapolation;
   };
+  
+    /*!
+   * \brief Set fluid vapor quality
+   * \param[in] iPoint - Node index
+   * \param[in] VaporQuality - fluid vapor quality value.
+   */
+  inline void SetVaporQuality(unsigned long iPoint, su2double VaporQuality) final { FluidVaporQuality[iPoint] = VaporQuality; };
+
+  /*!
+   * \brief Get fluid vapor quality
+   * \param[in] iPoint - Node index
+   * \return VaporQuality - Fluid vapor quality value
+   */
+  inline su2double GetVaporQuality(unsigned long iPoint) const final { return FluidVaporQuality[iPoint]; }
 
   /*!
    * \brief Get dataset extrapolation instance

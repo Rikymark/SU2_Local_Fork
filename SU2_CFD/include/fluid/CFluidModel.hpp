@@ -71,6 +71,7 @@ class CFluidModel {
   su2double dktdrho_T{0.0};        /*!< \brief Partial derivative of conductivity w.r.t. density. */
   su2double dktdT_rho{0.0};        /*!< \brief Partial derivative of conductivity w.r.t. temperature. */
   su2double mass_diffusivity{0.0}; /*!< \brief Mass Diffusivity */
+  su2double VaporQuality{0.0};       /*!< \brief Vapor Quality */
 
   unique_ptr<CViscosityModel> LaminarViscosity;       /*!< \brief Laminar Viscosity Model */
   unique_ptr<CConductivityModel> ThermalConductivity; /*!< \brief Thermal Conductivity Model */
@@ -143,7 +144,12 @@ class CFluidModel {
    * \brief Get fluid specific heat at constant volume.
    */
   su2double GetCv() const { return Cv; }
-
+  
+  /*!
+   * \brief Get fluid vapor quality.
+   */
+  su2double GetVaporQuality() const { return VaporQuality; }
+  
   /*!
    * \brief Flamelet LUT - Get the number of transported scalars.
    */
