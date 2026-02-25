@@ -164,6 +164,7 @@ class CDataDrivenFluid final : public CFluidModel {
   
   unsigned long outside_dataset, /*!< \brief Density-energy combination lies outside data set. */
       nIter_Newton;              /*!< \brief Number of Newton solver iterations. */
+  su2double MaxRelErr_Newton;          /*!< \brief maximum relative error of the Newton solver iterations. */
 
   /*!
    * \brief Map dataset variables to specific look-up operations.
@@ -293,4 +294,10 @@ class CDataDrivenFluid final : public CFluidModel {
    * \return Newton solver iteration count at termination.
    */
   unsigned long GetnIter_Newton() override { return nIter_Newton; }
+
+   /*!
+   * \brief Get the maximum relative error at the termination of Newton solver.
+   * \return Maximum relative error at the termination of Newton solver.
+   */
+  su2double GetNewtonSolverMaxRelErr() override { return MaxRelErr_Newton; }
 };

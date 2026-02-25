@@ -1345,7 +1345,7 @@ inline LM_ParsedOptions ParseLMOptions(const LM_OPTIONS *LM_Options, unsigned sh
  * \brief Structure containing parsed options for data-driven fluid model.
  */
 struct DataDrivenFluid_ParsedOptions {
-  su2double Newton_relaxation = 1.0;  /*!< \brief Relaxation factor for Newton solvers in data-driven fluid models. */
+  su2double Newton_relaxation = 1;  /*!< \brief Relaxation factor for Newton solvers in data-driven fluid models. */
   bool use_PINN = false;               /*!< \brief Use physics-informed method for data-driven fluid modeling. */
   ENUM_DATADRIVEN_METHOD interp_algorithm_type = ENUM_DATADRIVEN_METHOD::MLP; /*!< \brief Interpolation algorithm used for data-driven fluid model. */
   unsigned short n_filenames = 1;     /*!< \brief Number of datasets. */

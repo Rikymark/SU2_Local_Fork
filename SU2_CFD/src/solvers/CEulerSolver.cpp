@@ -1916,6 +1916,10 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
       if (!ideal_gas || low_mach_corr) {
         ComputeConsistentExtrapolation(GetFluidModel(), nDim, Primitive_i, Secondary_i);
         ComputeConsistentExtrapolation(GetFluidModel(), nDim, Primitive_j, Secondary_j);
+        if(config->GetKind_FluidModel() == DATADRIVEN_FLUID){
+          nodes->SetNewtonSolverIterations(iPoint, GetFluidModel()->GetnIter_Newton());
+          nodes->SetNewtonSolverMaxRelErr(iPoint, GetFluidModel()->GetNewtonSolverMaxRelErr());
+        }
       }
 
       /*--- Low-Mach number correction. ---*/
@@ -5295,8 +5299,10 @@ void CEulerSolver::BC_Riemann(CGeometry *geometry, CSolver **solver_container,
       GetFluidModel()->SetTDState_rhoe(Density_b, StaticEnergy_b);
 
       /*--- Store number of Newton iterations at BC ---*/
-      if(config->GetKind_FluidModel() == DATADRIVEN_FLUID)
+      if(config->GetKind_FluidModel() == DATADRIVEN_FLUID){
         nodes->SetNewtonSolverIterations(iPoint, GetFluidModel()->GetnIter_Newton());
+        nodes->SetNewtonSolverMaxRelErr(iPoint, GetFluidModel()->GetNewtonSolverMaxRelErr());
+      }
 
       const auto Pressure_b = GetFluidModel()->GetPressure();
       const auto Temperature_b = GetFluidModel()->GetTemperature();
@@ -5449,8 +5455,10 @@ void CEulerSolver::BC_Riemann(CGeometry *geometry, CSolver **solver_container,
 
       }
       /*--- Store number of Newton iterations at BC ---*/
-      if(config->GetKind_FluidModel() == DATADRIVEN_FLUID)
+      if(config->GetKind_FluidModel() == DATADRIVEN_FLUID){
         nodes->SetNewtonSolverIterations(iPoint, GetFluidModel()->GetnIter_Newton());
+        nodes->SetNewtonSolverMaxRelErr(iPoint, GetFluidModel()->GetNewtonSolverMaxRelErr());
+      }
 
     }
   }
@@ -6866,6 +6874,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
       /*--- Store number of Newton iterations at BC ---*/
       if(config->GetKind_FluidModel() == DATADRIVEN_FLUID)
         nodes->SetNewtonSolverIterations(iPoint, GetFluidModel()->GetnIter_Newton());
+        nodes->SetNewtonSolverMaxRelErr(iPoint, GetFluidModel()->GetNewtonSolverMaxRelErr());
 
     }
     END_SU2_OMP_FOR

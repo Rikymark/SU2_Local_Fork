@@ -66,7 +66,7 @@ CDataDrivenFluid::CDataDrivenFluid(const CConfig* config, bool display) : CFluid
   /*--- Relaxation factor and tolerance for Newton solvers. ---*/
   Newton_Relaxation = datadriven_fluid_options.Newton_relaxation;
   Newton_Tolerance = 1e-10;
-  MaxIter_Newton = 50;
+  MaxIter_Newton = 75;
 
   /*--- Preprocessing of inputs and outputs for the interpolation method. ---*/
   MapInputs_to_Outputs();
@@ -394,6 +394,8 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y1_target, const su2dou
 
   bool converged = false;
   unsigned long Iter = 0;
+  su2double err_Y1 = 0;
+  su2double err_Y2 = 0;
   su2double extra_relaxation{1.0};
   /*--- Initiating Newton solver ---*/
   while (!converged && (Iter < MaxIter_Newton)) {
@@ -404,6 +406,9 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y1_target, const su2dou
     const su2double delta_Y1 = Y1 - Y1_target;
     const su2double delta_Y2 = Y2 - Y2_target;
     
+    err_Y1 = abs(delta_Y1 / Y1);
+    err_Y2 = abs(delta_Y2 / Y2);
+
     /*--- Continue iterative process if residuals are outside tolerances. ---*/
     if ((abs(delta_Y1 / Y1) < Newton_Tolerance) && (abs(delta_Y2 / Y2) < Newton_Tolerance)) {
       converged = true;
@@ -428,6 +433,9 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y1_target, const su2dou
     Iter++;
   }
   nIter_Newton = Iter;
+
+  MaxRelErr_Newton = (err_Y1 > err_Y2) ? err_Y1 : err_Y2;
+
   AD::SetPreaccOut(Density);
   AD::SetPreaccOut(StaticEnergy);
   AD::EndPreacc();
@@ -440,7 +448,7 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
 
   bool converged = false;
   unsigned long Iter = 0;
-
+  su2double err_Y = 0;
   AD::StartPreacc();
   AD::SetPreaccIn(Y_target);
   AD::SetPreaccIn(X);
@@ -451,6 +459,7 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
 
     /*--- Determine residual ---*/
     const su2double delta_Y = Y_target - Y;
+    err_Y = abs(delta_Y / Y);
 
     /*--- Continue iterative process if residuals are outside tolerances. ---*/
     if (abs(delta_Y / Y) < Newton_Tolerance) {
@@ -471,6 +480,7 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
   SetTDState_rhoe(Density, StaticEnergy);
 
   nIter_Newton = Iter;
+  MaxRelErr_Newton = err_Y;
 }
 
 void CDataDrivenFluid::ComputeIdealGasQuantities() {
@@ -497,7 +507,7 @@ void CDataDrivenFluid::ComputeIdealGasQuantities() {
   }
   /*--- Create a five-by-five thermodynamic table used to provide initial guess for Newton solver ---*/
   coarse_TD_table = MiniTable2D();
-  const size_t nTable_coarse{20},
+  const size_t nTable_coarse{100},
                nP_table = nTable_coarse*nTable_coarse;
   /*--- Variables included in table: density, static energy, pressure, temperature ---*/
   coarse_TD_table.SetNVars(4);

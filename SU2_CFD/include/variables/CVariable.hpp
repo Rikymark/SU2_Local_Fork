@@ -2372,6 +2372,20 @@ public:
    */
   inline virtual unsigned long GetNewtonSolverIterations(unsigned long iPoint) const { return 0; }
 
+    /*!
+   * \brief Set the maximum relative error of the Newton solver used by the fluid model.
+   * \param[in] iPoint - Node index
+   * \param[in] maxRelErr - Maximum relative error at the Newton solver termination
+   */
+  inline virtual void SetNewtonSolverMaxRelErr(unsigned long iPoint, su2double maxRelErr) { }
+
+  /*!
+   * \brief Get the maximum relative error of the Newton solver used by the fluid model.
+   * \param[in] iPoint - Node index
+   * \return Maximum relative error at the Newton solver termination
+   */
+  inline virtual su2double GetNewtonSolverMaxRelErr(unsigned long iPoint) const { return 0; }
+
   /*!
    * \brief LUT premixed flamelet: virtual functions for the speciesflameletvariable LUT
    */

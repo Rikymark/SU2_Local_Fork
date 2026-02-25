@@ -97,6 +97,7 @@ CEulerVariable::CEulerVariable(su2double density, const su2double *velocity, su2
     DataDrivenFluid = true;
     DatasetExtrapolation.resize(nPoint) = 0;
     NIterNewtonsolver.resize(nPoint) = 0;
+    ErrMaxNewtonSolver.resize(nPoint) = su2double(0.0);
     FluidEntropy.resize(nPoint) = su2double(0.0);
     FluidVaporQuality.resize(nPoint) = su2double(0.0);
   }

@@ -81,6 +81,7 @@ class CEulerVariable : public CFlowVariable {
   bool DataDrivenFluid = false; /*!< \brief Usage of data-driven fluid model. DatasetExtrapolation and FluidEntropy will not be sized if disabled. */
   su2vector<unsigned short> DatasetExtrapolation; /*!< \brief Stores instances of dataset bounds violation when using data-driven fluid models. */
   su2vector<unsigned long> NIterNewtonsolver;    /*!< \brief Stores number of Newton solver iterations when using data-driven fluid models. */
+  su2vector<su2double> ErrMaxNewtonSolver;    /*!< \brief Stores Newton solver maximum relative error when using data-driven fluid models. */
   VectorType FluidEntropy;          /*!< \brief Stores the fluid entropy value as computed by the data-driven fluid model. */
   VectorType FluidVaporQuality;     /*!< \brief Stores the fluid vapor quality value as computed by the data-driven fluid model. */
 
@@ -359,5 +360,19 @@ class CEulerVariable : public CFlowVariable {
    * \return Number of iterations evaluated by the Newton solver
    */
   inline unsigned long GetNewtonSolverIterations(unsigned long iPoint) const final { return NIterNewtonsolver[iPoint]; }
+
+    /*!
+   * \brief Set the maximum relative error of the Newton solver used by the fluid model.
+   * \param[in] iPoint - Node index
+   * \param[in] maxRelErr - Maximum relative error at the Newton solver termination
+   */
+  inline void SetNewtonSolverMaxRelErr(unsigned long iPoint, su2double maxRelErr) final { ErrMaxNewtonSolver[iPoint] = maxRelErr; }
+
+  /*!
+   * \brief Get the maximum relative error of the Newton solver used by the fluid model.
+   * \param[in] iPoint - Node index
+   * \return Maximum relative error at the Newton solver termination
+   */
+  inline su2double GetNewtonSolverMaxRelErr(unsigned long iPoint) const final { return ErrMaxNewtonSolver[iPoint]; }
 
 };

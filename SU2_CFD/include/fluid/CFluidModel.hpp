@@ -404,4 +404,10 @@ class CFluidModel {
    * \return Newton solver iteration count at termination.
    */
   virtual unsigned long GetnIter_Newton() { return 0; }
+
+  /*!
+   * \brief Get the maximum relative error of the Newton solver iterations.
+   * \return Newton solver maximum relative error at termination.
+   */
+  virtual inline su2double GetNewtonSolverMaxRelErr() { return 0; }
 };

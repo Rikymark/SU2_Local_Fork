@@ -249,6 +249,7 @@ void CFlowCompOutput::SetVolumeOutputFields(CConfig *config){
   if(config->GetKind_FluidModel() == DATADRIVEN_FLUID){
     AddVolumeOutput("EXTRAPOLATION", "Extrapolation", "PRIMITIVE", "Density, energy outside data range");
     AddVolumeOutput("FLUIDMODEL_NEWTONITER", "nIter_Newton", "PRIMITIVE", "Number of iterations evaluated by the Newton solver");
+    AddVolumeOutput("FLUIDMODEL_NEWTONMAXERR", "MaxRelErr_Newton", "PRIMITIVE", "Maximum relative error at the Newton solver termination");
     AddVolumeOutput("ENTROPY", "Entropy", "PRIMITIVE", "Fluid entropy value");
     AddVolumeOutput("VAPORQUALITY", "VaporQuality", "PRIMITIVE", "Vapor Quality");
   }
@@ -352,6 +353,7 @@ void CFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolv
   if(config->GetKind_FluidModel() == DATADRIVEN_FLUID){
     SetVolumeOutputValue("EXTRAPOLATION", iPoint, Node_Flow->GetDataExtrapolation(iPoint));
     SetVolumeOutputValue("FLUIDMODEL_NEWTONITER", iPoint, Node_Flow->GetNewtonSolverIterations(iPoint));
+    SetVolumeOutputValue("FLUIDMODEL_NEWTONMAXERR", iPoint, Node_Flow->GetNewtonSolverMaxRelErr(iPoint));
     SetVolumeOutputValue("ENTROPY", iPoint, Node_Flow->GetEntropy(iPoint));
     SetVolumeOutputValue("VAPORQUALITY", iPoint, Node_Flow->GetVaporQuality(iPoint));
   }
