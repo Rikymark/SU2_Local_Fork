@@ -232,8 +232,8 @@ void CDataDrivenFluid::SetTDState_rhoe(su2double rho, su2double e) {
 
   /*--- Compute thermodynamic state based on density and energy. ---*/
   
-  Density = max(min(rho, rho_max), rho_min);
-  StaticEnergy = max(min(e, e_max), e_min);
+  //Density = max(min(rho, rho_max), rho_min);
+  //StaticEnergy = max(min(e, e_max), e_min);
 
   Evaluate_Dataset(Density, StaticEnergy);
   if (Kind_DataDriven_Method==ENUM_DATADRIVEN_METHOD::MLP) {
