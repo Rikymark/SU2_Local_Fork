@@ -2386,6 +2386,16 @@ public:
    */
   inline virtual su2double GetNewtonSolverMaxRelErr(unsigned long iPoint) const { return 0; }
 
+  inline virtual unsigned long GetMaxIterNewton() const { return 0; }
+
+  inline virtual su2double GetNewtonHistory(unsigned long iPoint, unsigned long MaxIter_Newton, unsigned long k) const {return 0;}
+  
+  /*!
+   FARE COMMENTO
+   */
+  virtual void StoreNewtonHistory(unsigned long iPoint, const su2vector <su2double>& hist)
+  {};
+  
   /*!
    * \brief LUT premixed flamelet: virtual functions for the speciesflameletvariable LUT
    */

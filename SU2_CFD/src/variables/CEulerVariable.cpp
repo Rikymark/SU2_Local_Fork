@@ -48,6 +48,8 @@ CEulerVariable::CEulerVariable(su2double density, const su2double *velocity, su2
   : CFlowVariable(npoint, ndim, nvar, ndim + 9, EulerNPrimVarGrad(config, ndim), config),
     indices(ndim, 0) {
 
+  MaxIter_Newton=75;
+
   const bool dual_time = (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_1ST) ||
                          (config->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND);
   const bool classical_rk4 = (config->GetKind_TimeIntScheme_Flow() == CLASSICAL_RK4_EXPLICIT);
@@ -100,7 +102,18 @@ CEulerVariable::CEulerVariable(su2double density, const su2double *velocity, su2
     ErrMaxNewtonSolver.resize(nPoint) = su2double(0.0);
     FluidEntropy.resize(nPoint) = su2double(0.0);
     FluidVaporQuality.resize(nPoint) = su2double(0.0);
+
+    res_history.resize(nPoint * MaxIter_Newton) = su2double(-1.0);
+
   }
+}
+
+void CEulerVariable::StoreNewtonHistory(unsigned long iPoint, const su2vector <su2double>& hist)
+{
+  const unsigned long Nmax = this->MaxIter_Newton;
+  const unsigned long base = iPoint * Nmax;
+
+  std::memcpy(&res_history[base], hist.data(), Nmax * sizeof(su2double));
 }
 
 bool CEulerVariable::SetPrimVar(unsigned long iPoint, CFluidModel *FluidModel) {

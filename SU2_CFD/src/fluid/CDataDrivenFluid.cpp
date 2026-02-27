@@ -449,6 +449,9 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
   bool converged = false;
   unsigned long Iter = 0;
   su2double err_Y = 0;
+
+  res_history_local.resize(MaxIter_Newton)=su2double(-1.0);
+
   AD::StartPreacc();
   AD::SetPreaccIn(Y_target);
   AD::SetPreaccIn(X);
@@ -459,8 +462,8 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
 
     /*--- Determine residual ---*/
     const su2double delta_Y = Y_target - Y;
-    err_Y = abs(delta_Y / Y);
-
+    err_Y = delta_Y / Y;
+    res_history_local[Iter] = err_Y;
     /*--- Continue iterative process if residuals are outside tolerances. ---*/
     if (abs(delta_Y / Y) < Newton_Tolerance) {
       converged = true;

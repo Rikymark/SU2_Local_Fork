@@ -252,6 +252,15 @@ void CFlowCompOutput::SetVolumeOutputFields(CConfig *config){
     AddVolumeOutput("FLUIDMODEL_NEWTONMAXERR", "MaxRelErr_Newton", "PRIMITIVE", "Maximum relative error at the Newton solver termination");
     AddVolumeOutput("ENTROPY", "Entropy", "PRIMITIVE", "Fluid entropy value");
     AddVolumeOutput("VAPORQUALITY", "VaporQuality", "PRIMITIVE", "Vapor Quality");
+
+    const unsigned int Nmax = 75;
+
+    for (unsigned int k = 0; k < Nmax; ++k) {
+    const std::string name = "FLUIDMODEL_NEWTONRES_" + std::to_string(k);
+    const std::string key  = "newton_res_iter_" + std::to_string(k);
+    AddVolumeOutput(name, key, "PRIMITIVE",
+                  "Newton solver relative error at iteration k");
+    }
   }
 
   if (config->GetViscous()) {
@@ -356,6 +365,12 @@ void CFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolv
     SetVolumeOutputValue("FLUIDMODEL_NEWTONMAXERR", iPoint, Node_Flow->GetNewtonSolverMaxRelErr(iPoint));
     SetVolumeOutputValue("ENTROPY", iPoint, Node_Flow->GetEntropy(iPoint));
     SetVolumeOutputValue("VAPORQUALITY", iPoint, Node_Flow->GetVaporQuality(iPoint));
+
+    const unsigned int Nmax = Node_Flow->GetMaxIterNewton();   
+    for (unsigned int k = 0; k < Nmax; ++k) {
+      const std::string name = "FLUIDMODEL_NEWTONRES_" + std::to_string(k);
+        SetVolumeOutputValue(name, iPoint, Node_Flow->GetNewtonHistory(iPoint, Nmax, k));
+    }
   }
 
   if (config->GetKind_Solver() == MAIN_SOLVER::RANS || config->GetKind_Solver() == MAIN_SOLVER::NAVIER_STOKES){

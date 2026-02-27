@@ -6875,6 +6875,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
       if(config->GetKind_FluidModel() == DATADRIVEN_FLUID)
         nodes->SetNewtonSolverIterations(iPoint, GetFluidModel()->GetnIter_Newton());
         nodes->SetNewtonSolverMaxRelErr(iPoint, GetFluidModel()->GetNewtonSolverMaxRelErr());
+        nodes->StoreNewtonHistory(iPoint, GetFluidModel()->GetResHistory_Local());
 
     }
     END_SU2_OMP_FOR

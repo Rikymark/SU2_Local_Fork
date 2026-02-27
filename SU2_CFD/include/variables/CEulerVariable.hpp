@@ -81,7 +81,9 @@ class CEulerVariable : public CFlowVariable {
   bool DataDrivenFluid = false; /*!< \brief Usage of data-driven fluid model. DatasetExtrapolation and FluidEntropy will not be sized if disabled. */
   su2vector<unsigned short> DatasetExtrapolation; /*!< \brief Stores instances of dataset bounds violation when using data-driven fluid models. */
   su2vector<unsigned long> NIterNewtonsolver;    /*!< \brief Stores number of Newton solver iterations when using data-driven fluid models. */
-  su2vector<su2double> ErrMaxNewtonSolver;    /*!< \brief Stores Newton solver maximum relative error when using data-driven fluid models. */
+  su2vector <su2double> ErrMaxNewtonSolver;    /*!< \brief Stores Newton solver maximum relative error when using data-driven fluid models. */
+  su2vector <su2double> res_history;    /*!< \brief Stores Newton solver convergence history when using data-driven fluid models. */
+  unsigned long MaxIter_Newton; /*!< \brief Maximum number of iterations for Newton solvers. */
   VectorType FluidEntropy;          /*!< \brief Stores the fluid entropy value as computed by the data-driven fluid model. */
   VectorType FluidVaporQuality;     /*!< \brief Stores the fluid vapor quality value as computed by the data-driven fluid model. */
 
@@ -374,5 +376,18 @@ class CEulerVariable : public CFlowVariable {
    * \return Maximum relative error at the Newton solver termination
    */
   inline su2double GetNewtonSolverMaxRelErr(unsigned long iPoint) const final { return ErrMaxNewtonSolver[iPoint]; }
+  
+  /*!
+   FARE COMMENTO
+   */
+  void StoreNewtonHistory(unsigned long iPoint, const su2vector <su2double>& hist) final;
 
+
+  inline unsigned long GetMaxIterNewton() const final { return MaxIter_Newton; }
+
+  /*!
+   FARE COMMENTO
+   */
+  inline su2double GetNewtonHistory(unsigned long iPoint, unsigned long MaxIter_Newton, unsigned long k) 
+  const final {return res_history[iPoint * (unsigned long)MaxIter_Newton + k];};
 };
