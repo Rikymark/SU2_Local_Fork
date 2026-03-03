@@ -310,8 +310,8 @@ class CDataDrivenFluid final : public CFluidModel {
   unsigned long GetMaxIterNewton_Fluid() override { return MaxIter_Newton; }
 
   /*!
-   * \brief Get the maximum number of Newton solver iterations.
-   * \return Maximum number of Newton solver iterations.
+   * \brief Get the Newton solver convergence history.
+   * \return Newton solver convergence history.
    */
   su2vector <su2double> GetResHistory_Local() override { return res_history_local; }
 };

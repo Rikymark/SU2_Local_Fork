@@ -1919,6 +1919,7 @@ void CEulerSolver::Upwind_Residual(CGeometry *geometry, CSolver **solver_contain
         if(config->GetKind_FluidModel() == DATADRIVEN_FLUID){
           nodes->SetNewtonSolverIterations(iPoint, GetFluidModel()->GetnIter_Newton());
           nodes->SetNewtonSolverMaxRelErr(iPoint, GetFluidModel()->GetNewtonSolverMaxRelErr());
+          nodes->StoreNewtonHistory(iPoint, GetFluidModel()->GetResHistory_Local());
         }
       }
 

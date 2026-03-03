@@ -102,7 +102,6 @@ CEulerVariable::CEulerVariable(su2double density, const su2double *velocity, su2
     ErrMaxNewtonSolver.resize(nPoint) = su2double(0.0);
     FluidEntropy.resize(nPoint) = su2double(0.0);
     FluidVaporQuality.resize(nPoint) = su2double(0.0);
-
     res_history.resize(nPoint * MaxIter_Newton) = su2double(-1.0);
 
   }

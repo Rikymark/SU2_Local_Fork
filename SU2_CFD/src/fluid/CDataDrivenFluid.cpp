@@ -449,7 +449,7 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
   bool converged = false;
   unsigned long Iter = 0;
   su2double err_Y = 0;
-
+  su2double extra_relaxation{0.25};
   res_history_local.resize(MaxIter_Newton)=su2double(-1.0);
 
   AD::StartPreacc();
@@ -470,8 +470,14 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
     } else {
       const su2double delta_X = delta_Y / dYdX;
 
+      if (Iter<=MaxIter_Newton*0.1){
       /*--- Update energy value ---*/
       X += Newton_Relaxation * delta_X;
+      } else {
+        /*--- If the solver has not converged after 1/3 of the maximum number of iterations, apply extra relaxation to improve convergence. ---*/
+        X += extra_relaxation * Newton_Relaxation * delta_X;
+      }
+         
     }
     Iter++;
   }

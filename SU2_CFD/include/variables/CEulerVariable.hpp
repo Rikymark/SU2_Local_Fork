@@ -378,15 +378,25 @@ class CEulerVariable : public CFlowVariable {
   inline su2double GetNewtonSolverMaxRelErr(unsigned long iPoint) const final { return ErrMaxNewtonSolver[iPoint]; }
   
   /*!
-   FARE COMMENTO
+   * \brief Save the Newton solver convergence history.
+   * \param[in] iPoint - Node index
+   * \param[in] hist - Newton solver convergence history at the iPoint
+   * \return Save the Newton solver convergence history.
    */
   void StoreNewtonHistory(unsigned long iPoint, const su2vector <su2double>& hist) final;
 
-
+  /*!
+   * \brief Get the maximum Newton solver iteration value.
+   * \return Maximum Newton solver iteration value.
+   */
   inline unsigned long GetMaxIterNewton() const final { return MaxIter_Newton; }
 
   /*!
-   FARE COMMENTO
+   * \brief Get the Newton solver error of a given node at a given iteration.
+   * \param[in] iPoint - Node index
+   * \param[in] MaxIter_Newton - Maximum Newton solver iteration value.
+   * \param[in] k - iteration.
+   * \return Newton solver error of a given node at a given iteration.
    */
   inline su2double GetNewtonHistory(unsigned long iPoint, unsigned long MaxIter_Newton, unsigned long k) 
   const final {return res_history[iPoint * (unsigned long)MaxIter_Newton + k];};
