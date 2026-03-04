@@ -449,7 +449,12 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
   bool converged = false;
   unsigned long Iter = 0;
   su2double err_Y = 0;
-  su2double extra_relaxation{0.25};
+  su2double extra_relaxation{0.8};  // Extra relaxation factor employed when Y>=HighY
+  su2double extra_relaxation_Medium_Y{0.6}; // Extra relaxation factor employed when MediumY<Y<HighY
+  su2double extra_relaxation_low_Y{0.25}; // Extra relaxation factor employed when MediumY<Y<HighY
+  su2double iter_mult{0.1}; // NIterMax multiplier after which extra relaxation is applied (Rel applied when Iter>NIterMax*iter_mult)
+  su2double HighY{1e5}; // Value above which standard extrarelaxation is apllied
+  su2double MediumY{0.375e5}; // Value below which low_Y extra relaxation is apllied
   res_history_local.resize(MaxIter_Newton)=su2double(-1.0);
 
   AD::StartPreacc();
@@ -470,12 +475,15 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
     } else {
       const su2double delta_X = delta_Y / dYdX;
 
-      if (Iter<=MaxIter_Newton*0.1){
+      if (Iter<=MaxIter_Newton*iter_mult){
       /*--- Update energy value ---*/
       X += Newton_Relaxation * delta_X;
       } else {
         /*--- If the solver has not converged after 1/3 of the maximum number of iterations, apply extra relaxation to improve convergence. ---*/
-        X += extra_relaxation * Newton_Relaxation * delta_X;
+        if (Y>=HighY){X += extra_relaxation * Newton_Relaxation * delta_X;}
+        else if(Y<HighY && Y>MediumY){X += extra_relaxation_Medium_Y * Newton_Relaxation * delta_X;}
+        else {X += extra_relaxation_low_Y * Newton_Relaxation * delta_X;}
+        
       }
          
     }
