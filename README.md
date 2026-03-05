@@ -2,6 +2,17 @@
 <img width="250" height="154" src="Docs/logoSU2small.png">
 </p>
 
+# MAIN MODIFICATIONS OF THE BRANCH
+This version couples LUT with a newton solver to define the thermodynamic conditions
+LUT is employed when the pair rho-e is used to define the thermodyanmic state. When other pairs are used (such as P-rho or h-s) the Newton solver is used to found the rho-e couple starting from the assign pair
+The Newton solver convergence can be checked in every domain node by checking the convergence error and iteration.
+To improve the simulation of two-phase flows a series of user-defined inputs factors have been introduced, enhancing the convergence of the 1D Newton solver when the pair P-rho define the flow thermodynamics. These inputs can be found in SU2_CFD/src/fluid/CDataDrivenFluid.cpp inside the Newton function Run_Newton_Solver_RelaxedP and are:
+1. extra_relaxation: general under relaxation applied after a given iteration when P is higher than a value defined in HighY
+2. extra_relaxation_Medium_Y: under relaxation applied after a given iteration when P is between HighY and MediumY
+3. extra_relaxation_low_Y: under relaxation applied after a given iteration when P is below MediumY
+4. iter_mult: it defines when under relaxation is activated, i.e. when Iter>NIterMax*iter_mult, where NIterMax is the maximum number of iterations.
+5. HighY: pressure above which standard under relaxation is apllied
+6. MediumY: pressure below which extra_relaxation_low_Y is applied
 
 # SU2 (ver. 8.4.0 "Harrier"): The Open-Source CFD Code
 

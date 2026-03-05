@@ -216,7 +216,16 @@ class CDataDrivenFluid final : public CFluidModel {
    * \param[in] dYdX - Pointer to the partial derivative of target quantity w.r.t. controlling variable.
    */
   void Run_Newton_Solver(const su2double Y_target, const su2double & Y, su2double & X, const su2double & dYdX);
-
+  
+      /*!
+   * \brief 1D Newton solver with under relaxation factors for P as Y to compute the density or energy corresponding to Y_target.
+   * \param[in] Y_target - Target quantity value.
+   * \param[in] Y - Pointer to output quantity.
+   * \param[in] X - Pointer to controlling variable (density or energy).
+   * \param[in] dYdX - Pointer to the partial derivative of target quantity w.r.t. controlling variable.
+   */
+  void Run_Newton_Solver_RelaxedP(const su2double Y_target, const su2double & Y, su2double & X, const su2double & dYdX);
+  
   void ComputeIdealGasQuantities();
 
  public:

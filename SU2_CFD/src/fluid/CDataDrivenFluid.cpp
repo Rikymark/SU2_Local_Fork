@@ -304,7 +304,7 @@ void CDataDrivenFluid::SetEnergy_Prho(su2double P, su2double rho) {
   Density = rho;
 
   /*--- Run 1D Newton solver for pressure at constant density. ---*/
-  Run_Newton_Solver(P, Pressure, StaticEnergy, dPde_rho);
+  Run_Newton_Solver_RelaxedP(P, Pressure, StaticEnergy, dPde_rho);
 }
 
 void CDataDrivenFluid::SetTDState_rhoT(su2double rho, su2double T) {
@@ -443,12 +443,20 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y1_target, const su2dou
   SetTDState_rhoe(Density, StaticEnergy);
 }
 
-void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2double & Y, su2double & X, const su2double & dYdX) {
+void CDataDrivenFluid::Run_Newton_Solver_RelaxedP(const su2double Y_target, const su2double & Y, su2double & X, const su2double & dYdX) {
   /*--- 1D Newton solver, computing the density or internal energy value corresponding to Y_target. ---*/
 
   bool converged = false;
   unsigned long Iter = 0;
   su2double err_Y = 0;
+
+  su2double extra_relaxation{0.8};  // Extra relaxation factor employed when Y>=HighY
+  su2double extra_relaxation_Medium_Y{0.7}; // Extra relaxation factor employed when MediumY<Y<HighY
+  su2double extra_relaxation_low_Y{0.35}; // Extra relaxation factor employed when MediumY<Y<HighY
+  su2double iter_mult{0.333}; // NIterMax multiplier after which extra relaxation is applied (Rel applied when Iter>NIterMax*iter_mult)
+  su2double HighY{1e5}; // Value above which standard extrarelaxation is applied
+  su2double MediumY{0.375e5}; // Value below which low_Y extra relaxation is applied
+
   AD::StartPreacc();
   AD::SetPreaccIn(Y_target);
   AD::SetPreaccIn(X);
@@ -467,8 +475,57 @@ void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2doub
     } else {
       const su2double delta_X = delta_Y / dYdX;
 
+      if (Iter<=MaxIter_Newton*iter_mult){
       /*--- Update energy value ---*/
       X += Newton_Relaxation * delta_X;
+      } else {
+        /*--- If the solver has not converged after 1/3 of the maximum number of iterations, apply extra relaxation to improve convergence. ---*/
+        if (Y>=HighY){X += extra_relaxation * Newton_Relaxation * delta_X;}
+        else if(Y<HighY && Y>MediumY){X += extra_relaxation_Medium_Y * Newton_Relaxation * delta_X;}
+        else {X += extra_relaxation_low_Y * Newton_Relaxation * delta_X;}
+        
+      }
+    }
+    Iter++;
+  }
+  AD::SetPreaccOut(Density);
+  AD::SetPreaccOut(StaticEnergy);
+  AD::EndPreacc();
+
+  /*--- Calculate thermodynamic state based on converged values for density and energy. ---*/
+  SetTDState_rhoe(Density, StaticEnergy);
+
+  nIter_Newton = Iter;
+  MaxRelErr_Newton = err_Y;
+}
+
+void CDataDrivenFluid::Run_Newton_Solver(const su2double Y_target, const su2double & Y, su2double & X, const su2double & dYdX) {
+  /*--- 1D Newton solver, computing the density or internal energy value corresponding to Y_target. ---*/
+
+  bool converged = false;
+  unsigned long Iter = 0;
+  su2double err_Y = 0;
+
+  AD::StartPreacc();
+  AD::SetPreaccIn(Y_target);
+  AD::SetPreaccIn(X);
+  /*--- Initiating Newton solver. ---*/
+  while (!converged && (Iter < MaxIter_Newton)) {
+    /*--- Determine thermodynamic state based on current density and energy. ---*/
+    SetTDState_rhoe(Density, StaticEnergy);
+
+    /*--- Determine residual ---*/
+    const su2double delta_Y = Y_target - Y;
+    err_Y = abs(delta_Y / Y);
+
+    /*--- Continue iterative process if residuals are outside tolerances. ---*/
+    if (abs(delta_Y / Y) < Newton_Tolerance) {
+      converged = true;
+    } else {
+      const su2double delta_X = delta_Y / dYdX;
+      /*--- Update energy value ---*/
+      X += Newton_Relaxation * delta_X;
+
     }
     Iter++;
   }
