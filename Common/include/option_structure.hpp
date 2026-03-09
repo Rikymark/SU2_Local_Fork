@@ -1350,6 +1350,16 @@ struct DataDrivenFluid_ParsedOptions {
   ENUM_DATADRIVEN_METHOD interp_algorithm_type = ENUM_DATADRIVEN_METHOD::MLP; /*!< \brief Interpolation algorithm used for data-driven fluid model. */
   unsigned short n_filenames = 1;     /*!< \brief Number of datasets. */
   std::string *datadriven_filenames;  /*!< \brief Dataset information for data-driven fluid models. */
+
+  unsigned long NIterMax=75; /*!< Maximum number of Newton solver iterations */
+  su2double Newton_tol=1e-10; /*!< Tolerance for convergence of Newton solvers. */
+
+  su2double extra_rel=0.8; /*!< Standard extra relaxation factor */
+  su2double extra_rel_med=0.7; /*!< Extra relaxation factor for medium Y value */
+  su2double extra_rel_low=0.35; /*!< Extra relaxation factor for low Y value */
+  su2double iter_mult=0.333; /*!< Extra relaxation applied when Iter>=iter_mult*NIterMax */
+  su2double HighY=1e5; /*!< Value above which standard extra relaxation is applied */
+  su2double MediumY=0.375e5; /*!< Value below which low value extra relaxation is applied */
 };
 
 

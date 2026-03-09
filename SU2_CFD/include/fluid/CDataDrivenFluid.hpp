@@ -116,8 +116,14 @@ class CDataDrivenFluid final : public CFluidModel {
       e_start,                 /*!< \brief Starting value for the energy in Newton solver processes. */
       Newton_Tolerance,        /*!< \brief Normalized tolerance for Newton solvers. */
       rho_min, rho_max,        /*!< \brief Minimum and maximum density values in data set. */
-      e_min, e_max;            /*!< \brief Minimum and maximum energy values in data set. */
-            
+      e_min, e_max,           /*!< \brief Minimum and maximum energy values in data set. */
+      extra_relaxation,  // Extra relaxation factor employed when Y>=HighY
+      extra_relaxation_Medium_Y, // Extra relaxation factor employed when MediumY<Y<HighY
+      extra_relaxation_low_Y, // Extra relaxation factor employed when MediumY<Y<HighY
+      iter_mult, // NIterMax multiplier after which extra relaxation is applied (Rel applied when Iter>NIterMax*iter_mult)
+      HighY, // Value above which standard extrarelaxation is applied
+      MediumY; // Value below which low_Y extra relaxation is applied   
+          
   unsigned long MaxIter_Newton; /*!< \brief Maximum number of iterations for Newton solvers. */
 
   su2double dsde_rho, /*!< \brief Entropy derivative w.r.t. density. */
