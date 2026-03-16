@@ -4,15 +4,24 @@
 
 # MAIN MODIFICATIONS OF THE BRANCH
 This version couples LUT with a newton solver to define the thermodynamic conditions
-LUT is employed when the pair rho-e is used to define the thermodyanmic state. When other pairs are used (such as P-rho or h-s) the Newton solver is used to found the rho-e couple starting from the assign pair
-The Newton solver convergence can be checked in every domain node by checking the convergence error and iteration.
-To improve the simulation of two-phase flows a series of user-defined inputs factors have been introduced, enhancing the convergence of the 1D Newton solver when the pair P-rho define the flow thermodynamics. These inputs can be found in SU2_CFD/src/fluid/CDataDrivenFluid.cpp inside the Newton function Run_Newton_Solver_RelaxedP and are:
+LUT is employed when the pair rho-e is used to define the thermodyanmic state. When other pairs are used (such as P-rho or h-s) the Newton solver is used to found the rho-e couple starting from the assigned .
+The Newton solver convergence can be checked in every domain node by checking the convergence history and the exit tolerance and iteration.
+To improve the simulation of two-phase flows a series of user-defined inputs factors have been introduced, enhancing the convergence of the 1D Newton solver when the pair P-rho define the flow thermodynamics. The default values can be found in SU2_CFD/src/fluid/CDataDrivenFluid.cpp inside the Newton function Run_Newton_Solver_RelaxedP and are:
 1. extra_relaxation: general under relaxation applied after a given iteration when P is higher than a value defined in HighY
 2. extra_relaxation_Medium_Y: under relaxation applied after a given iteration when P is between HighY and MediumY
 3. extra_relaxation_low_Y: under relaxation applied after a given iteration when P is below MediumY
 4. iter_mult: it defines when under relaxation is activated, i.e. when Iter>NIterMax*iter_mult, where NIterMax is the maximum number of iterations.
-5. HighY: pressure above which standard under relaxation is apllied
-6. MediumY: pressure below which extra_relaxation_low_Y is applied
+5. HighY: pressure above which standard under relaxation is apllied in [Pa]
+6. MediumY: pressure below which extra_relaxation_low_Y is applied in [Pa]
+These values can be modified via the .cfg file with the following command:
+DATADRIVEN_NEWTON_ITER=Maximum Newton solver iterations
+DATADRIVEN_NEWTON_TOL=Newtol solver exit tolerance
+DATADRIVEN_NEWTON_EXTRA_RELAXATION=extra_relaxation
+DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM=extra_relaxation_Medium_Y
+DATADRIVEN_NEWTON_EXTRA_RELAXATION_LOW=extra_relaxation_low_Y
+DATADRIVEN_NEWTON_EXTRA_RELAXATION_ITER_MULT=iter_mult
+DATADRIVEN_NEWTON_EXTRA_RELAXATION_HIGH_Y=HighY
+DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM_Y=MediumY
 
 The code stores also the convergence history of the Newton solver in NIterMax vectors where every element is referred to one mesh node. If NIterMax is changed in CDataDrivenFluid.cpp, it's value has to be changed also in SU2_CFD/src/variables/CEulerVariable.cpp (the variable to be changed is MaxIter_Newton)
 # SU2 (ver. 8.4.0 "Harrier"): The Open-Source CFD Code

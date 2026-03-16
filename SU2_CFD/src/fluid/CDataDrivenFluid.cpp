@@ -74,7 +74,7 @@ CDataDrivenFluid::CDataDrivenFluid(const CConfig* config, bool display) : CFluid
   iter_mult=datadriven_fluid_options.iter_mult;
   HighY=datadriven_fluid_options.HighY;
   MediumY=datadriven_fluid_options.MediumY;
-  
+
   /*--- Preprocessing of inputs and outputs for the interpolation method. ---*/
   MapInputs_to_Outputs();
 

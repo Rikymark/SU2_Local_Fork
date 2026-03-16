@@ -104,7 +104,10 @@ su2preconfig.timestamp
 # Clangd server files
 .cache
 
-
+# Unit tests files
+UnitTests/SU2_CFD/fluid/*.drg
+UnitTests/SU2_CFD/fluid/*.txt
+UnitTests/SU2_CFD/fluid/*.csv
 
 ninja-win.zip
 ninja.exe
