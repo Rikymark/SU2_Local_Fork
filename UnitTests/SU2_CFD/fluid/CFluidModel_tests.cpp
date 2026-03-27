@@ -91,7 +91,7 @@ std::array<su2double, 4> FluidModelChecks(CFluidModel* fluid_model, const su2dou
   return {err_rel_dTdrho_e, err_rel_dPdrho_e, err_rel_dTde_rho, err_rel_dPde_rho};
 }
 
-std::array<su2double, 4> FluidModelChecks_Prho(CFluidModel* fluid_model, const su2double val_p_ass, const su2double val_rho_ass, const su2double delta_rho = 1e-2, const su2double delta_e = 100) {
+std::array<su2double, 12> FluidModelChecks_Prho(CFluidModel* fluid_model, const su2double val_p_ass, const su2double val_rho_ass, const su2double delta_rho = 1e-2, const su2double delta_e = 100) {
   /*--- Check consistency of reverse look-up ---*/
   {
     fluid_model->SetTDState_Prho(val_p_ass, val_rho_ass);
@@ -148,9 +148,66 @@ std::array<su2double, 4> FluidModelChecks_Prho(CFluidModel* fluid_model, const s
   CHECK(dPde_rho == Approx(dPde_rho_FD));
   
 
-  return {err_rel_dTdrho_e, err_rel_dPdrho_e, err_rel_dTde_rho, err_rel_dPde_rho};
+  return {err_rel_dTdrho_e, err_rel_dPdrho_e, err_rel_dTde_rho, err_rel_dPde_rho, dTdrho_e, dTdrho_e_FD, dPdrho_e, dPdrho_e_FD, dTde_rho, dTde_rho_FD,dPde_rho, dPde_rho_FD};
 }
 
+std::array<su2double, 12> FluidModelChecks_rho_e(CFluidModel* fluid_model, const su2double val_rho_ass, const su2double val_e_ass, const su2double delta_rho = 1e-2, const su2double delta_e = 100) {
+  /*--- Check consistency of reverse look-up ---*/
+  {
+    fluid_model->SetTDState_rhoe(val_rho_ass, val_e_ass);
+
+    const su2double val_rho_fluidmodel = fluid_model->GetDensity();
+    const su2double val_e_fluidmodel = fluid_model->GetStaticEnergy();
+
+    fluid_model->SetTDState_rhoe(val_rho_fluidmodel, val_e_fluidmodel);
+    CHECK(Approx(fluid_model->GetStaticEnergy()) == val_e_ass);
+    CHECK(Approx(fluid_model->GetDensity()) == val_rho_ass);
+  }
+  /*--- Check internal consistency between primary and derived fluid properties ---*/
+  fluid_model->SetTDState_rhoe(val_rho_ass, val_e_ass);
+
+  const su2double dTdrho_e = fluid_model->GetdTdrho_e();
+  const su2double dPdrho_e = fluid_model->GetdPdrho_e();
+  const su2double dTde_rho = fluid_model->GetdTde_rho();
+  const su2double dPde_rho = fluid_model->GetdPde_rho();
+  
+  fluid_model->SetTDState_rhoe(val_rho_ass + delta_rho, val_e_ass);
+  su2double T_plus = fluid_model->GetTemperature();
+  su2double p_plus = fluid_model->GetPressure();
+
+  fluid_model->SetTDState_rhoe(val_rho_ass - delta_rho, val_e_ass);
+  su2double T_minus = fluid_model->GetTemperature();
+  su2double p_minus = fluid_model->GetPressure();
+  const su2double dTdrho_e_FD = (T_plus - T_minus) / (2 * delta_rho);
+  const su2double dPdrho_e_FD = (p_plus - p_minus) / (2 * delta_rho);
+
+  CHECK(dTdrho_e == Approx(dTdrho_e_FD));
+  const su2double err_rel_dTdrho_e = std::abs((dTdrho_e - dTdrho_e_FD) / dTdrho_e);
+  const su2double err_rel_dPdrho_e = std::abs((dPdrho_e - dPdrho_e_FD) / dPdrho_e);
+  CHECK(err_rel_dTdrho_e < 1e-3);
+  CHECK(err_rel_dPdrho_e < 1e-3);
+  CHECK(dPdrho_e == Approx(dPdrho_e_FD));
+  
+  
+  fluid_model->SetTDState_rhoe(val_rho_ass, val_e_ass + delta_e);
+  T_plus = fluid_model->GetTemperature();
+  p_plus = fluid_model->GetPressure();
+
+  fluid_model->SetTDState_rhoe(val_rho_ass, val_e_ass - delta_e);
+  T_minus = fluid_model->GetTemperature();
+  p_minus = fluid_model->GetPressure();
+  const su2double dTde_rho_FD = (T_plus - T_minus) / (2 * delta_e);
+  const su2double dPde_rho_FD = (p_plus - p_minus) / (2 * delta_e);
+  const su2double err_rel_dTde_rho = std::abs((dTde_rho - dTde_rho_FD) / dTde_rho); 
+  const su2double err_rel_dPde_rho = std::abs((dPde_rho - dPde_rho_FD) / dPde_rho);
+  CHECK(err_rel_dTde_rho < 1e-3);
+  CHECK(err_rel_dPde_rho < 1e-3);
+  CHECK(dTde_rho == Approx(dTde_rho_FD));
+  CHECK(dPde_rho == Approx(dPde_rho_FD));
+  
+
+  return {err_rel_dTdrho_e, err_rel_dPdrho_e, err_rel_dTde_rho, err_rel_dPde_rho, dTdrho_e, dTdrho_e_FD, dPdrho_e, dPdrho_e_FD, dTde_rho, dTde_rho_FD,dPde_rho, dPde_rho_FD};
+}
 std::array<su2double, 4> FluidModelChecks_Der(CFluidModel* fluid_model, const su2double val_rho_ass, const su2double val_e_ass) {
   /*--- Check the derivatives extrapolation  ---*/
 
@@ -228,8 +285,8 @@ TEST_CASE("Test case for ideal gas fluid model") {
 TEST_CASE("Test case for data-driven fluid model") {
   
 
-  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test13.csv";
-  string LoadFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/TROVA_TET4_Scaled_2PH_Nozzle_Expected_Exp.txt";
+  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test6_CO2.csv";
+  string LoadFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Nakagawa_Nozzle_Case_a_HighP.txt";
 
   std::stringstream config_options;
   config_options << "SOLVER=EULER" << std::endl;
@@ -239,7 +296,7 @@ TEST_CASE("Test case for data-driven fluid model") {
   config_options << "FLUID_MODEL=DATADRIVEN_FLUID" << std::endl;
   config_options << "USE_PINN=NO" << std::endl;
   config_options << "INTERPOLATION_METHOD=LUT" << std::endl;
-  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_2PH_TET4_EXP_Adapt_Ref_Add_Ref_V2.drg)" << std::endl;
+  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_Nakagawa_Case_a_HighP_V5.drg)" << std::endl;
   config_options << "DATADRIVEN_NEWTON_ITER=75" << std::endl;
   config_options << "DATADRIVEN_NEWTON_TOL=1E-10" << std::endl;
   config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION=0.4" << std::endl;
@@ -294,20 +351,20 @@ TEST_CASE("Test case for data-driven fluid model") {
   out << std::setprecision(8);
   out << "drho=" << delta_rho << "[kg/m3]" << "\n";
   out << "de=" << delta_e << "[J/kg]" << "\n";
-  out << "rho [kg/m3],P [Pa],err rel dTdrho_e [%],err rel dPdrho_e [%], err rel dTde_rho [%],err rel dPde_rho [%]\n";
-  std::array<su2double, 4> res{};
+  out << "rho [kg/m3],P [Pa],err rel dTdrho_e [%],err rel dPdrho_e [%], err rel dTde_rho [%],err rel dPde_rho [%], dTdrho_e, dTdrho_e_FD, dPdrho_e, dPdrho_e_FD, dTde_rho, dTde_rho_FD, dPde_rho, dPde_rho_FD\n";
+  std::array<su2double, 12> res{};
   for (size_t i=0; i<P_vec.size(); i++) {
     res=FluidModelChecks_Prho(fluid_model, P_vec[i], rho_vec[i],delta_rho,delta_e);
-    out << rho_vec[i] << ","<< P_vec[i] << ","<< res[0]*100.0 << ","<< res[1]*100.0 << ","<< res[2]*100.0 << ","<< res[3]*100.0 << ","<< "\n";
+    out << rho_vec[i] << ","<< P_vec[i] << ","<< res[0]*100.0 << ","<< res[1]*100.0 << ","<< res[2]*100.0 << ","<< res[3]*100.0 << ","<< res[4] << ","<<res[5] << ","<<res[6] << ","<< res[7] << ","<<res[8] << ","<<res[9] << ","<<res[10] << ","<<res[11] << ","<<"\n";
   }
   delete config;
   delete fluid_model;
 }
 
-TEST_CASE("Test case for first derivatives") {
+TEST_CASE("Test case for data-driven fluid model rho-e") {
   
 
-  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test10_Derivatives.csv";
+  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test17_rho_e.csv";
   string LoadFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/TROVA_TET4_Scaled_2PH_Nozzle_Expected_Exp.txt";
 
   std::stringstream config_options;
@@ -318,7 +375,65 @@ TEST_CASE("Test case for first derivatives") {
   config_options << "FLUID_MODEL=DATADRIVEN_FLUID" << std::endl;
   config_options << "USE_PINN=NO" << std::endl;
   config_options << "INTERPOLATION_METHOD=LUT" << std::endl;
-  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_2PH_TET4_EXP_Adapt_Ref_Add_Ref_V2.drg)" << std::endl;
+  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_2PH_TET4_EXP_Adapt_Ref_Add_Ref_V6.drg)" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_ITER=75" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_TOL=1E-10" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION=0.4" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM=0.15" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_LOW=0.2" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_ITER_MULT=0.333" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_HIGH_Y=3.25e5" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM_Y=2.75e5" << std::endl;
+  config_options << "CONV_NUM_METHOD_FLOW=ROE" << std::endl;
+  config_options << "MUSCL_FLOW= YES" << std::endl;
+
+  /*--- Setup ---*/
+
+  CConfig* config = new CConfig(config_options, SU2_COMPONENT::SU2_CFD, false);
+
+  /*--- Define fluid model ---*/
+  CDataDrivenFluid* fluid_model = new CDataDrivenFluid(config, false);
+
+  su2double delta_rho = 1e-4, delta_e = 10;
+  auto expansion=load_csv_col3_skip_header(LoadFile,',');
+  std::vector<double> rho_vec, e_vec;
+  rho_vec.reserve(expansion.size());
+  e_vec.reserve(expansion.size());
+
+  for (const auto& r : expansion) {
+    rho_vec.push_back(r[0]);
+    e_vec.push_back(r[1]);
+  }
+
+  std::ofstream out(NameFile, std::ios::out); 
+  out << std::setprecision(8);
+  out << "drho=" << delta_rho << "[kg/m3]" << "\n";
+  out << "de=" << delta_e << "[J/kg]" << "\n";
+  out << "rho [kg/m3],e [J/kg],err rel dTdrho_e [%],err rel dPdrho_e [%], err rel dTde_rho [%],err rel dPde_rho [%], dTdrho_e, dTdrho_e_FD, dPdrho_e, dPdrho_e_FD, dTde_rho, dTde_rho_FD, dPde_rho, dPde_rho_FD\n";
+  std::array<su2double, 12> res{};
+  for (size_t i=0; i<e_vec.size(); i++) {
+    res=FluidModelChecks_rho_e(fluid_model, rho_vec[i],e_vec[i],delta_rho,delta_e);
+    out << rho_vec[i] << ","<< e_vec[i] << ","<< res[0]*100.0 << ","<< res[1]*100.0 << ","<< res[2]*100.0 << ","<< res[3]*100.0 << ","<< res[4] << ","<<res[5] << ","<<res[6] << ","<< res[7] << ","<<res[8] << ","<<res[9] << ","<<res[10] << ","<<res[11] << ","<<"\n";
+  }
+  delete config;
+  delete fluid_model;
+}
+
+TEST_CASE("Test case for first derivatives") {
+  
+
+  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test6_CO2_derivatives.csv";
+  string LoadFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Nakagawa_Nozzle_Case_a_HighP.txt";
+
+  std::stringstream config_options;
+  config_options << "SOLVER=EULER" << std::endl;
+  //config_options << "KIND_TURB_MODEL=SA" << std::endl;
+  //config_options << "SA_OPTIONS= NONE" << std::endl;
+  //config_options << "REYNOLDS_NUMBER=1e6" << std::endl;
+  config_options << "FLUID_MODEL=DATADRIVEN_FLUID" << std::endl;
+  config_options << "USE_PINN=NO" << std::endl;
+  config_options << "INTERPOLATION_METHOD=LUT" << std::endl;
+  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_Nakagawa_Case_a_HighP_V5.drg)" << std::endl;
   config_options << "DATADRIVEN_NEWTON_ITER=75" << std::endl;
   config_options << "DATADRIVEN_NEWTON_TOL=1E-10" << std::endl;
   config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION=0.4" << std::endl;
@@ -377,6 +492,176 @@ TEST_CASE("Test case for first derivatives") {
     res=FluidModelChecks_Der(fluid_model, rho_vec[i], e_vec[i]);
     out << rho_vec[i] << ","<< e_vec[i] << ","<< res[0] << ","<< res[1] << ","<< res[2] << ","<< res[3] << ","<< "\n";
   }
+  delete config;
+  delete fluid_model;
+}
+
+TEST_CASE("Test case data-driven single point") {
+  
+  /* Print the values of the FD derivatives and the values of the elements used to compute the derivative for a single point*/
+  std::stringstream config_options;
+  config_options << "SOLVER=EULER" << std::endl;
+  //config_options << "KIND_TURB_MODEL=SA" << std::endl;
+  //config_options << "SA_OPTIONS= NONE" << std::endl;
+  //config_options << "REYNOLDS_NUMBER=1e6" << std::endl;
+  config_options << "FLUID_MODEL=DATADRIVEN_FLUID" << std::endl;
+  config_options << "USE_PINN=NO" << std::endl;
+  config_options << "INTERPOLATION_METHOD=LUT" << std::endl;
+  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_2PH_TET4_EXP_Adapt_Ref_Add_Ref_V8.drg)" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_ITER=75" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_TOL=1E-10" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION=0.4" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM=0.15" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_LOW=0.2" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_ITER_MULT=0.333" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_HIGH_Y=3.25e5" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM_Y=2.75e5" << std::endl;
+  config_options << "CONV_NUM_METHOD_FLOW=ROE" << std::endl;
+  config_options << "MUSCL_FLOW= YES" << std::endl;
+
+  /*--- Setup ---*/
+
+  CConfig* config = new CConfig(config_options, SU2_COMPONENT::SU2_CFD, false);
+
+  /*--- Define fluid model ---*/
+  CDataDrivenFluid* fluid_model = new CDataDrivenFluid(config, false);
+
+  su2double delta_rho = 1e-4, delta_e = 10;
+  su2double val_rho_ass=2.09407, val_e_ass=239189;
+
+  fluid_model->SetTDState_rhoe(val_rho_ass, val_e_ass);
+
+  const su2double dTdrho_e = fluid_model->GetdTdrho_e();
+  const su2double dPdrho_e = fluid_model->GetdPdrho_e();
+  const su2double dTde_rho = fluid_model->GetdTde_rho();
+  const su2double dPde_rho = fluid_model->GetdPde_rho();
+  
+  fluid_model->SetTDState_rhoe(val_rho_ass + delta_rho, val_e_ass);
+  su2double T_plus = fluid_model->GetTemperature();
+  su2double p_plus = fluid_model->GetPressure();
+
+  fluid_model->SetTDState_rhoe(val_rho_ass - delta_rho, val_e_ass);
+  su2double T_minus = fluid_model->GetTemperature();
+  su2double p_minus = fluid_model->GetPressure();
+  const su2double dTdrho_e_FD = (T_plus - T_minus) / (2 * delta_rho);
+  const su2double dPdrho_e_FD = (p_plus - p_minus) / (2 * delta_rho);
+  const su2double err_rel_dTdrho_e = std::abs((dTdrho_e - dTdrho_e_FD) / dTdrho_e);
+  const su2double err_rel_dPdrho_e = std::abs((dPdrho_e - dPdrho_e_FD) / dPdrho_e);
+
+  fluid_model->SetTDState_rhoe(val_rho_ass, val_e_ass + delta_e);
+  T_plus = fluid_model->GetTemperature();
+  p_plus = fluid_model->GetPressure();
+
+  fluid_model->SetTDState_rhoe(val_rho_ass, val_e_ass - delta_e);
+  T_minus = fluid_model->GetTemperature();
+  p_minus = fluid_model->GetPressure();
+
+  const su2double dTde_rho_FD = (T_plus - T_minus) / (2 * delta_e);
+  const su2double dPde_rho_FD = (p_plus - p_minus) / (2 * delta_e);
+  const su2double err_rel_dTde_rho = std::abs((dTde_rho - dTde_rho_FD) / dTde_rho); 
+  const su2double err_rel_dPde_rho = std::abs((dPde_rho - dPde_rho_FD) / dPde_rho);
+
+  std::cout << "dP/de_rho = " << dPde_rho << std::endl;
+  std::cout << "dP/de_rho_FD = " << dPde_rho_FD << std::endl;
+
+  std::cout << "Err Rel dP/de_rho = " << err_rel_dPde_rho << std::endl;
+
+  std::cout << "rho = " << val_rho_ass << " [kg/m3]" << std::endl;
+  std::cout << "e = " << val_e_ass << " [J/kg]" << std::endl;
+
+  std::cout << "e+ = " << val_e_ass + delta_e << " [J/kg]" << std::endl;
+  std::cout << "e- = " << val_e_ass - delta_e << " [J/kg]" << std::endl;
+
+  std::cout << "P+ = " << p_plus << " [Pa]" << std::endl;
+  std::cout << "P- = " << p_minus << " [Pa]" << std::endl;
+
+
+  delete config;
+  delete fluid_model;
+}
+
+TEST_CASE("Test case data-driven single point P-rho") {
+  
+  /* Print the values of the FD derivatives and the values of the elements used to compute the derivative for a single point*/
+  std::stringstream config_options;
+  config_options << "SOLVER=EULER" << std::endl;
+  //config_options << "KIND_TURB_MODEL=SA" << std::endl;
+  //config_options << "SA_OPTIONS= NONE" << std::endl;
+  //config_options << "REYNOLDS_NUMBER=1e6" << std::endl;
+  config_options << "FLUID_MODEL=DATADRIVEN_FLUID" << std::endl;
+  config_options << "USE_PINN=NO" << std::endl;
+  config_options << "INTERPOLATION_METHOD=LUT" << std::endl;
+  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_2PH_TET4_EXP_Adapt_Ref_Add_Ref_V8.drg)" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_ITER=75" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_TOL=1E-10" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION=0.5" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM=0.5" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_LOW=0.5" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_ITER_MULT=0.333" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_HIGH_Y=3.25e5" << std::endl;
+  config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM_Y=2.75e5" << std::endl;
+  config_options << "CONV_NUM_METHOD_FLOW=ROE" << std::endl;
+  config_options << "MUSCL_FLOW= YES" << std::endl;
+
+  /*--- Setup ---*/
+
+  CConfig* config = new CConfig(config_options, SU2_COMPONENT::SU2_CFD, false);
+
+  /*--- Define fluid model ---*/
+  CDataDrivenFluid* fluid_model = new CDataDrivenFluid(config, false);
+
+  su2double delta_rho = 1e-4, delta_e = 10;
+  su2double val_rho_ass=2.09407, val_p_ass=43200;
+
+  fluid_model->SetTDState_Prho(val_p_ass, val_rho_ass);
+
+  const su2double val_rho = fluid_model->GetDensity();
+  const su2double val_e = fluid_model->GetStaticEnergy();
+  const su2double dTdrho_e = fluid_model->GetdTdrho_e();
+  const su2double dPdrho_e = fluid_model->GetdPdrho_e();
+  const su2double dTde_rho = fluid_model->GetdTde_rho();
+  const su2double dPde_rho = fluid_model->GetdPde_rho();
+  
+  fluid_model->SetTDState_rhoe(val_rho + delta_rho, val_e);
+  su2double T_plus = fluid_model->GetTemperature();
+  su2double p_plus = fluid_model->GetPressure();
+
+  fluid_model->SetTDState_rhoe(val_rho- delta_rho, val_e);
+  su2double T_minus = fluid_model->GetTemperature();
+  su2double p_minus = fluid_model->GetPressure();
+  const su2double dTdrho_e_FD = (T_plus - T_minus) / (2 * delta_rho);
+  const su2double dPdrho_e_FD = (p_plus - p_minus) / (2 * delta_rho);
+  const su2double err_rel_dTdrho_e = std::abs((dTdrho_e - dTdrho_e_FD) / dTdrho_e);
+  const su2double err_rel_dPdrho_e = std::abs((dPdrho_e - dPdrho_e_FD) / dPdrho_e);
+
+  fluid_model->SetTDState_rhoe(val_rho, val_e + delta_e);
+  T_plus = fluid_model->GetTemperature();
+  p_plus = fluid_model->GetPressure();
+
+  fluid_model->SetTDState_rhoe(val_rho, val_e - delta_e);
+  T_minus = fluid_model->GetTemperature();
+  p_minus = fluid_model->GetPressure();
+
+  const su2double dTde_rho_FD = (T_plus - T_minus) / (2 * delta_e);
+  const su2double dPde_rho_FD = (p_plus - p_minus) / (2 * delta_e);
+  const su2double err_rel_dTde_rho = std::abs((dTde_rho - dTde_rho_FD) / dTde_rho); 
+  const su2double err_rel_dPde_rho = std::abs((dPde_rho - dPde_rho_FD) / dPde_rho);
+
+  std::cout << "dP/de_rho = " << dPde_rho << std::endl;
+  std::cout << "dP/de_rho_FD = " << dPde_rho_FD << std::endl;
+
+  std::cout << "Err Rel dP/de_rho = " << err_rel_dPde_rho << std::endl;
+
+  std::cout << "rho = " << val_rho << " [kg/m3]" << std::endl;
+  std::cout << "e = " << val_e << " [J/kg]" << std::endl;
+
+  std::cout << "e+ = " << val_e + delta_e << " [J/kg]" << std::endl;
+  std::cout << "e- = " << val_e - delta_e << " [J/kg]" << std::endl;
+
+  std::cout << "P+ = " << p_plus << " [Pa]" << std::endl;
+  std::cout << "P- = " << p_minus << " [Pa]" << std::endl;
+
+
   delete config;
   delete fluid_model;
 }
