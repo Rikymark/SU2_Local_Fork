@@ -285,8 +285,8 @@ TEST_CASE("Test case for ideal gas fluid model") {
 TEST_CASE("Test case for data-driven fluid model") {
   
 
-  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test6_CO2.csv";
-  string LoadFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Nakagawa_Nozzle_Case_a_HighP.txt";
+  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test23.csv";
+  string LoadFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/TROVA_TET4_Scaled_2PH_Nozzle_Expected_Exp.txt";
 
   std::stringstream config_options;
   config_options << "SOLVER=EULER" << std::endl;
@@ -296,7 +296,7 @@ TEST_CASE("Test case for data-driven fluid model") {
   config_options << "FLUID_MODEL=DATADRIVEN_FLUID" << std::endl;
   config_options << "USE_PINN=NO" << std::endl;
   config_options << "INTERPOLATION_METHOD=LUT" << std::endl;
-  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_Nakagawa_Case_a_HighP_V5.drg)" << std::endl;
+  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_2PH_TET4_EXP_Adapt_Ref_Add_Ref_V10.drg)" << std::endl;
   config_options << "DATADRIVEN_NEWTON_ITER=75" << std::endl;
   config_options << "DATADRIVEN_NEWTON_TOL=1E-10" << std::endl;
   config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION=0.4" << std::endl;
@@ -422,8 +422,8 @@ TEST_CASE("Test case for data-driven fluid model rho-e") {
 TEST_CASE("Test case for first derivatives") {
   
 
-  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test6_CO2_derivatives.csv";
-  string LoadFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Nakagawa_Nozzle_Case_a_HighP.txt";
+  string NameFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/Test20_derivatives.csv";
+  string LoadFile="/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/TROVA_TET4_Scaled_2PH_Nozzle_Expected_Exp.txt";
 
   std::stringstream config_options;
   config_options << "SOLVER=EULER" << std::endl;
@@ -433,7 +433,7 @@ TEST_CASE("Test case for first derivatives") {
   config_options << "FLUID_MODEL=DATADRIVEN_FLUID" << std::endl;
   config_options << "USE_PINN=NO" << std::endl;
   config_options << "INTERPOLATION_METHOD=LUT" << std::endl;
-  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_Nakagawa_Case_a_HighP_V5.drg)" << std::endl;
+  config_options << "FILENAMES_INTERPOLATOR=(/home/ricca/src_SU2/SU2_dev_NS_CheckConv/UnitTests/SU2_CFD/fluid/LUT_2PH_TET4_EXP_Adapt_Ref_Add_Ref_V10.drg)" << std::endl;
   config_options << "DATADRIVEN_NEWTON_ITER=75" << std::endl;
   config_options << "DATADRIVEN_NEWTON_TOL=1E-10" << std::endl;
   config_options << "DATADRIVEN_NEWTON_EXTRA_RELAXATION=0.4" << std::endl;
