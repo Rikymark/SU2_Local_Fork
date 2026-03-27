@@ -1232,6 +1232,23 @@ void CConfig::SetConfig_Options() {
   /*!\biref USE_PINN \n DESCRIPTION: Use physics-informed approach for the entropy-based fluid model. \n \ingroup Config*/
   addBoolOption("USE_PINN",datadriven_ParsedOptions.use_PINN, false);
 
+  /*!\brief DATADRIVEN_NEWTON_ITER\n DESCRIPTION: Newton solver maximum number of iteration in data-driven fluid model. \n \ingroup Config*/
+  addUnsignedLongOption("DATADRIVEN_NEWTON_ITER", datadriven_ParsedOptions.NIterMax, 75);
+  /*!\brief DATADRIVEN_NEWTON_TOL \n DESCRIPTION: Newton solver exit tolerance in data-driven fluid model. \n \ingroup Config*/
+  addDoubleOption("DATADRIVEN_NEWTON_TOL", datadriven_ParsedOptions.Newton_tol, 1e-10);
+  /*!\brief DATADRIVEN_NEWTON_EXTRA_RELAXATION \n DESCRIPTION: Newton solver standard extra relaxation in data-driven fluid model. \n \ingroup Config*/
+  addDoubleOption("DATADRIVEN_NEWTON_EXTRA_RELAXATION", datadriven_ParsedOptions.extra_rel, 0.8);
+  /*!\brief DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM \n DESCRIPTION: Newton solver medium extra relaxation in data-driven fluid model. \n \ingroup Config*/
+  addDoubleOption("DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM", datadriven_ParsedOptions.extra_rel_med, 0.7);
+  /*!\brief DATADRIVEN_NEWTON_EXTRA_RELAXATION_LOW \n DESCRIPTION: Newton solver low extra relaxation in data-driven fluid model. \n \ingroup Config*/
+  addDoubleOption("DATADRIVEN_NEWTON_EXTRA_RELAXATION_LOW", datadriven_ParsedOptions.extra_rel_low, 0.35);
+  /*!\brief DATADRIVEN_NEWTON_EXTRA_RELAXATION_ITER_MULT \n DESCRIPTION: Multiplier that indicates when Newton solver extra relaxation is activated in data-driven fluid model. \n \ingroup Config*/
+  addDoubleOption("DATADRIVEN_NEWTON_EXTRA_RELAXATION_ITER_MULT", datadriven_ParsedOptions.iter_mult, 0.333);
+  /*!\brief DATADRIVEN_NEWTON_EXTRA_RELAXATION_HIGH_Y \n DESCRIPTION: Y value above which standard extra relaxation is used in data-driven fluid model. \n \ingroup Config*/
+  addDoubleOption("DATADRIVEN_NEWTON_EXTRA_RELAXATION_HIGH_Y", datadriven_ParsedOptions.HighY, 1e5);
+  /*!\brief DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM_Y \n DESCRIPTION: Y value below which low extra relaxation is used in data-driven fluid model. \n \ingroup Config*/
+  addDoubleOption("DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM_Y", datadriven_ParsedOptions.MediumY, 0.375e5);
+
   /*!\brief CONFINEMENT_PARAM \n DESCRIPTION: Input Confinement Parameter for Vorticity Confinement*/
   addDoubleOption("CONFINEMENT_PARAM", Confinement_Param, 0.0);
 

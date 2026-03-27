@@ -65,8 +65,15 @@ CDataDrivenFluid::CDataDrivenFluid(const CConfig* config, bool display) : CFluid
 
   /*--- Relaxation factor and tolerance for Newton solvers. ---*/
   Newton_Relaxation = datadriven_fluid_options.Newton_relaxation;
-  Newton_Tolerance = 1e-10;
-  MaxIter_Newton = 75;
+  Newton_Tolerance = datadriven_fluid_options.Newton_tol;
+  MaxIter_Newton = datadriven_fluid_options.NIterMax;
+
+  extra_relaxation=datadriven_fluid_options.extra_rel;
+  extra_relaxation_Medium_Y=datadriven_fluid_options.extra_rel_med;
+  extra_relaxation_low_Y=datadriven_fluid_options.extra_rel_low;
+  iter_mult=datadriven_fluid_options.iter_mult;
+  HighY=datadriven_fluid_options.HighY;
+  MediumY=datadriven_fluid_options.MediumY;
 
   /*--- Preprocessing of inputs and outputs for the interpolation method. ---*/
   MapInputs_to_Outputs();
@@ -449,13 +456,6 @@ void CDataDrivenFluid::Run_Newton_Solver_RelaxedP(const su2double Y_target, cons
   bool converged = false;
   unsigned long Iter = 0;
   su2double err_Y = 0;
-
-  su2double extra_relaxation{0.8};  // Extra relaxation factor employed when Y>=HighY
-  su2double extra_relaxation_Medium_Y{0.7}; // Extra relaxation factor employed when MediumY<Y<HighY
-  su2double extra_relaxation_low_Y{0.35}; // Extra relaxation factor employed when MediumY<Y<HighY
-  su2double iter_mult{0.333}; // NIterMax multiplier after which extra relaxation is applied (Rel applied when Iter>NIterMax*iter_mult)
-  su2double HighY{1e5}; // Value above which standard extrarelaxation is applied
-  su2double MediumY{0.375e5}; // Value below which low_Y extra relaxation is applied
 
   AD::StartPreacc();
   AD::SetPreaccIn(Y_target);
