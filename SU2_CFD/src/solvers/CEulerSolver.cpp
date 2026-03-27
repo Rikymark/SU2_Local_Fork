@@ -6193,7 +6193,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
   S_boundary       = new su2double[8];
 
   su2double  AvgMach , *cj, GilesBeta, *delta_c, **R_Matrix, *deltaprim, **R_c_inv,**R_c, alphaIn_BC, gammaIn_BC = 0,
-      P_Total, T_Total, Enthalpy_BC, Entropy_BC, *R, *c_avg,*dcjs, Beta_inf2, c2js_Re, c3js_Re, cOutjs_Re, avgVel2 =0.0;
+      P_Total, T_Total, rho_Total, Enthalpy_BC, Entropy_BC, *R, *c_avg,*dcjs, Beta_inf2, c2js_Re, c3js_Re, cOutjs_Re, avgVel2 =0.0;
 
   long freq;
 
@@ -6292,6 +6292,61 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
 
       /* --- Computes the total state --- */
       GetFluidModel()->SetTDState_PT(P_Total, T_Total);
+      Enthalpy_BC = GetFluidModel()->GetStaticEnergy()+ GetFluidModel()->GetPressure()/GetFluidModel()->GetDensity();
+      Entropy_BC = GetFluidModel()->GetEntropy();
+
+
+      /* --- Computes the inverse matrix R_c --- */
+      conv_numerics->ComputeResJacobianGiles(GetFluidModel(), AveragePressure[val_marker][iSpan], AverageDensity[val_marker][iSpan],
+                                             AverageTurboVelocity[val_marker][iSpan], alphaIn_BC, gammaIn_BC, R_c, R_c_inv);
+
+      GetFluidModel()->SetTDState_Prho(AveragePressure[val_marker][iSpan], AverageDensity[val_marker][iSpan]);
+      AverageEnthalpy = GetFluidModel()->GetStaticEnergy() + AveragePressure[val_marker][iSpan]/AverageDensity[val_marker][iSpan];
+      AverageEntropy  = GetFluidModel()->GetEntropy();
+
+      avgVel2 = 0.0;
+      for (iDim = 0; iDim < nDim; iDim++) avgVel2 += AverageVelocity[val_marker][iSpan][iDim]*AverageVelocity[val_marker][iSpan][iDim];
+      if (nDim == 2){
+        R[0] = -(AverageEntropy - Entropy_BC);
+        R[1] = -(AverageTurboVelocity[val_marker][iSpan][1] - tan(alphaIn_BC)*AverageTurboVelocity[val_marker][iSpan][0]);
+        R[2] = -(AverageEnthalpy + 0.5*avgVel2 - Enthalpy_BC);
+      }
+
+      else{
+        R[0] = -(AverageEntropy - Entropy_BC);
+        R[1] = -(AverageTurboVelocity[val_marker][iSpan][1] - tan(alphaIn_BC)*AverageTurboVelocity[val_marker][iSpan][0]);
+        R[2] = -(AverageTurboVelocity[val_marker][iSpan][2] - tan(gammaIn_BC)*AverageTurboVelocity[val_marker][iSpan][0]);
+        R[3] = -(AverageEnthalpy + 0.5*avgVel2 - Enthalpy_BC);
+
+      }
+      /* --- Compute the avg component  c_avg = R_c^-1 * R --- */
+      for (iVar = 0; iVar < nVar-1; iVar++){
+        c_avg[iVar] = 0.0;
+        for (jVar = 0; jVar < nVar-1; jVar++){
+          c_avg[iVar] += R_c_inv[iVar][jVar]*R[jVar];
+        }
+      }
+      break;
+
+    case TOTAL_CONDITIONS_Prho:
+
+      /*--- Retrieve the specified total conditions for this inlet. ---*/
+      P_Total  = config->GetGiles_Var1(Marker_Tag);
+      rho_Total  = config->GetGiles_Var2(Marker_Tag);
+      FlowDir = config->GetGiles_FlowDir(Marker_Tag);
+      alphaIn_BC = atan(FlowDir[1]/FlowDir[0]);
+
+      gammaIn_BC = 0;
+      if (nDim == 3){
+        gammaIn_BC = FlowDir[2]; //atan(FlowDir[2]/FlowDir[0]);
+      }
+
+      /*--- Non-dim. the inputs---*/
+      P_Total /= config->GetPressure_Ref();
+      rho_Total /= config->GetDensity_Ref();
+
+      /* --- Computes the total state --- */
+      GetFluidModel()->SetTDState_Prho(P_Total, rho_Total);
       Enthalpy_BC = GetFluidModel()->GetStaticEnergy()+ GetFluidModel()->GetPressure()/GetFluidModel()->GetDensity();
       Entropy_BC = GetFluidModel()->GetEntropy();
 
@@ -6556,7 +6611,7 @@ void CEulerSolver::BC_Giles(CGeometry *geometry, CSolver **solver_container, CNu
       //Done, generalize for 3D case
       //TODO(turbo), generalize for Inlet and Outlet in for backflow treatment
 
-      case TOTAL_CONDITIONS_PT: case MIXING_IN:case TOTAL_CONDITIONS_PT_1D: case MIXING_IN_1D:
+      case TOTAL_CONDITIONS_PT: case TOTAL_CONDITIONS_Prho: case MIXING_IN:case TOTAL_CONDITIONS_PT_1D: case MIXING_IN_1D:
         if(config->GetSpatialFourier()){
           if (AvgMach <= 1.0){
             Beta_inf= I*complex<su2double>(sqrt(1.0 - AvgMach));
