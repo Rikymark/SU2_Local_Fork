@@ -73,6 +73,9 @@ class CFluidModel {
   su2double mass_diffusivity{0.0}; /*!< \brief Mass Diffusivity */
   su2double VaporQuality{0.0};       /*!< \brief Vapor Quality */
 
+  su2double dPdrho_e_FD{0.0};         /*!< \brief DpDd_e computed with finite (central) difference. */
+  su2double dPde_rho_FD{0.0};         /*!< \brief DpDe_d computed with finite (central) difference. */
+
   unique_ptr<CViscosityModel> LaminarViscosity;       /*!< \brief Laminar Viscosity Model */
   unique_ptr<CConductivityModel> ThermalConductivity; /*!< \brief Thermal Conductivity Model */
   unique_ptr<CDiffusivityModel> MassDiffusivity;      /*!< \brief Mass Diffusivity Model */
@@ -228,9 +231,19 @@ class CFluidModel {
   su2double GetdPdrho_e() const { return dPdrho_e; }
 
   /*!
+   * \brief Get fluid pressure partial derivative computed with finite difference.
+   */
+  su2double GetdPdrho_e_FD() const { return dPdrho_e_FD; }
+
+  /*!
    * \brief Get fluid pressure partial derivative.
    */
   su2double GetdPde_rho() const { return dPde_rho; }
+
+  /*!
+   * \brief Get fluid pressure partial derivative computed with finite difference.
+   */
+  su2double GetdPde_rho_FD() const { return dPde_rho_FD; }
 
   /*!
    * \brief Get fluid temperature partial derivative.

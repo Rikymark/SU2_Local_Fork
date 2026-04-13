@@ -253,6 +253,13 @@ void CFlowCompOutput::SetVolumeOutputFields(CConfig *config){
     AddVolumeOutput("ENTROPY", "Entropy", "PRIMITIVE", "Fluid entropy value");
     AddVolumeOutput("VAPORQUALITY", "VaporQuality", "PRIMITIVE", "Vapor Quality");
 
+    AddVolumeOutput("dPdrho_e_val", "dPdrho_e", "PRIMITIVE", "Partial derivative");
+    AddVolumeOutput("dPde_rho_val", "dPde_rho", "PRIMITIVE", "Partial derivative");
+    AddVolumeOutput("dPdrho_e_FD_val", "dPdrho_e_FD", "PRIMITIVE", "Partial derivative computed with central differencing");
+    AddVolumeOutput("dPde_rho_FD_val", "dPde_rho_FD", "PRIMITIVE", "Partial derivative computed with central differencing");
+    AddVolumeOutput("err_rel_dPdrho_e", "(dPdrho_e-dPdrho_e_FD)/dPdrho_e", "PRIMITIVE", "Relative error between LUT and central difference");
+    AddVolumeOutput("err_rel_dPde_rho_val", "(dPde_rho-dPde_rho_FD)/dPde_rho", "PRIMITIVE", "Relative error between LUT and central difference");
+
     const unsigned int Nmax = 75;
 
     for (unsigned int k = 0; k < Nmax; ++k) {
@@ -365,6 +372,14 @@ void CFlowCompOutput::LoadVolumeData(CConfig *config, CGeometry *geometry, CSolv
     SetVolumeOutputValue("FLUIDMODEL_NEWTONMAXERR", iPoint, Node_Flow->GetNewtonSolverMaxRelErr(iPoint));
     SetVolumeOutputValue("ENTROPY", iPoint, Node_Flow->GetEntropy(iPoint));
     SetVolumeOutputValue("VAPORQUALITY", iPoint, Node_Flow->GetVaporQuality(iPoint));
+
+    SetVolumeOutputValue("dPdrho_e_val", iPoint, Node_Flow->GetSecondary(iPoint,0));
+    SetVolumeOutputValue("dPde_rho_val", iPoint, Node_Flow->GetSecondary(iPoint,1));
+    SetVolumeOutputValue("dPdrho_e_FD_val", iPoint, Node_Flow->Get_dPdrho_e_FD(iPoint));
+    SetVolumeOutputValue("dPde_rho_FD_val", iPoint, Node_Flow->Get_dPde_rho_FD(iPoint));
+
+    SetVolumeOutputValue("err_rel_dPdrho_e", iPoint, abs(Node_Flow->GetSecondary(iPoint,0)-Node_Flow->Get_dPdrho_e_FD(iPoint))/Node_Flow->GetSecondary(iPoint,0));
+    SetVolumeOutputValue("err_rel_dPde_rho_val", iPoint, abs(Node_Flow->GetSecondary(iPoint,1)-Node_Flow->Get_dPde_rho_FD(iPoint))/Node_Flow->GetSecondary(iPoint,1));
 
     const unsigned int Nmax = Node_Flow->GetMaxIterNewton();   
     for (unsigned int k = 0; k < Nmax; ++k) {

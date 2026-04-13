@@ -2345,6 +2345,34 @@ public:
   inline virtual su2double GetVaporQuality(unsigned long iPoint) const { return 0; }
 
   /*!
+   * \brief Set fluid dPdrho_e computed with finite difference
+   * \param[in] iPoint - Node index
+   * \param[in] dPdrho_e_FD - dPdrho_e computed with finite difference
+   */
+  inline virtual void Set_dPdrho_e_FD(unsigned long iPoint, su2double dPdrho_e_FD) { };
+
+  /*!
+   * \brief Get fluid dPdrho_e computed with finite difference
+   * \param[in] iPoint - Node index
+   * \return dPdrho_e_FD - dPdrho_e computed with finite difference
+   */
+  inline virtual su2double Get_dPdrho_e_FD(unsigned long iPoint) const { return 0; }
+
+    /*!
+   * \brief Set fluid dPde_rho computed with finite difference
+   * \param[in] iPoint - Node index
+   * \param[in] dPde_rho_FD - dPde_rho computed with finite difference
+   */
+  inline virtual void Set_dPde_rho_FD(unsigned long iPoint, su2double dPde_rho_FD) { };
+
+  /*!
+   * \brief Get fluid dPde_rho computed with finite difference
+   * \param[in] iPoint - Node index
+   * \return dPde_rho_FD - dPde_rho computed with finite difference
+   */
+  inline virtual su2double Get_dPde_rho_FD(unsigned long iPoint) const { return 0; }
+
+  /*!
    * \brief Set dataset extrapolation instance
    * \param[in] iPoint - Node index
    * \param[in] extrapolation - Extrapolation instance (0 = within dataset, 1 = outside dataset)

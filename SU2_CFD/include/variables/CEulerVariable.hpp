@@ -86,6 +86,8 @@ class CEulerVariable : public CFlowVariable {
   unsigned long MaxIter_Newton; /*!< \brief Maximum number of iterations for Newton solvers. */
   VectorType FluidEntropy;          /*!< \brief Stores the fluid entropy value as computed by the data-driven fluid model. */
   VectorType FluidVaporQuality;     /*!< \brief Stores the fluid vapor quality value as computed by the data-driven fluid model. */
+  VectorType Fluid_dPdrho_e_FD;          /*!< \brief Stores the fluid dPdrho_e value as computed by the data-driven fluid model via finite difference. */
+  VectorType Fluid_dPde_rho_FD;     /*!< \brief Stores the fluid dPde_rho value as computed by the data-driven fluid model via finite difference. */
 
  public:
   /*!
@@ -341,6 +343,34 @@ class CEulerVariable : public CFlowVariable {
    * \return VaporQuality - Fluid vapor quality value
    */
   inline su2double GetVaporQuality(unsigned long iPoint) const final { return FluidVaporQuality[iPoint]; }
+
+      /*!
+   * \brief Set fluid dPdrho_e computed with finite difference
+   * \param[in] iPoint - Node index
+   * \param[in] dPdrho_e_FD - dPdrho_e computed with finite difference
+   */
+  inline void Set_dPdrho_e_FD(unsigned long iPoint, su2double dPdrho_e_FD) final { Fluid_dPdrho_e_FD[iPoint] = dPdrho_e_FD; };
+
+  /*!
+   * \brief Get fluid dPdrho_e computed with finite difference
+   * \param[in] iPoint - Node index
+   * \return dPdrho_e_FD - dPdrho_e computed with finite difference
+   */
+  inline su2double Get_dPdrho_e_FD(unsigned long iPoint) const final { return Fluid_dPdrho_e_FD[iPoint]; }
+
+        /*!
+   * \brief Set fluid dPde_rho computed with finite difference
+   * \param[in] iPoint - Node index
+   * \param[in] dPde_rho_FD - dPde_rho computed with finite difference
+   */
+  inline void Set_dPde_rho_FD(unsigned long iPoint, su2double dPde_rho_FD) final { Fluid_dPde_rho_FD[iPoint] = dPde_rho_FD; };
+
+  /*!
+   * \brief Get fluid dPde_rho computed with finite difference
+   * \param[in] iPoint - Node index
+   * \return ddPde_rho_FD - dPde_rho computed with finite difference
+   */
+  inline su2double Get_dPde_rho_FD(unsigned long iPoint) const final { return Fluid_dPde_rho_FD[iPoint]; }
 
   /*!
    * \brief Get dataset extrapolation instance

@@ -102,6 +102,8 @@ CEulerVariable::CEulerVariable(su2double density, const su2double *velocity, su2
     ErrMaxNewtonSolver.resize(nPoint) = su2double(0.0);
     FluidEntropy.resize(nPoint) = su2double(0.0);
     FluidVaporQuality.resize(nPoint) = su2double(0.0);
+    Fluid_dPdrho_e_FD.resize(nPoint) = su2double(0.0);
+    Fluid_dPde_rho_FD.resize(nPoint) = su2double(0.0);
     res_history.resize(nPoint * MaxIter_Newton) = su2double(-1.0);
 
   }
@@ -162,9 +164,33 @@ bool CEulerVariable::SetPrimVar(unsigned long iPoint, CFluidModel *FluidModel) {
 
   /*--- Set look-up variables in case of data-driven fluid model ---*/
   if (DataDrivenFluid) {
+    
+    const su2double delta_rho=1e-4; // kg/m3
+    const su2double delta_e=10; // J/kg
     SetDataExtrapolation(iPoint, FluidModel->GetExtrapolation());
     SetEntropy(iPoint, FluidModel->GetEntropy());
     SetVaporQuality(iPoint, FluidModel->GetVaporQuality());
+
+    // Compute dP/drho_e
+    FluidModel->SetTDState_rhoe(density + delta_rho, staticEnergy);
+    su2double T_plus = FluidModel->GetTemperature();
+    su2double p_plus = FluidModel->GetPressure();
+
+    FluidModel->SetTDState_rhoe(density  - delta_rho, staticEnergy);
+    su2double T_minus = FluidModel->GetTemperature();
+    su2double p_minus = FluidModel->GetPressure();
+    const su2double dPdrho_e_FD = (p_plus - p_minus) / (2 * delta_rho);
+    Set_dPdrho_e_FD(iPoint, dPdrho_e_FD);
+
+    FluidModel->SetTDState_rhoe(density, staticEnergy+ delta_e);
+    T_plus = FluidModel->GetTemperature();
+    p_plus = FluidModel->GetPressure();
+
+    FluidModel->SetTDState_rhoe(density, staticEnergy - delta_e);
+    T_minus = FluidModel->GetTemperature();
+    p_minus = FluidModel->GetPressure();
+    const su2double dPde_rho_FD = (p_plus - p_minus) / (2 * delta_e);
+    Set_dPde_rho_FD(iPoint,dPde_rho_FD);
   }
 
   return RightVol;

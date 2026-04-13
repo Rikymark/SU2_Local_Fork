@@ -23,6 +23,8 @@ DATADRIVEN_NEWTON_EXTRA_RELAXATION_ITER_MULT=iter_mult
 DATADRIVEN_NEWTON_EXTRA_RELAXATION_HIGH_Y=HighY
 DATADRIVEN_NEWTON_EXTRA_RELAXATION_MEDIUM_Y=MediumY
 
+Store the value of dP/de_rho, dP/drho_e, dP/de_rho_FD, dP/drho_e_FD, where FD is computed via central difference. Compute also the relative error between the LUT and FD values. 
+
 The code stores also the convergence history of the Newton solver in NIterMax vectors where every element is referred to one mesh node. If NIterMax is changed in CDataDrivenFluid.cpp, it's value has to be changed also in SU2_CFD/src/variables/CEulerVariable.cpp (the variable to be changed is MaxIter_Newton)
 # SU2 (ver. 8.4.0 "Harrier"): The Open-Source CFD Code
 
