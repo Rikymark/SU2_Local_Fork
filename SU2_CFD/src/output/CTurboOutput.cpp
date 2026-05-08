@@ -67,6 +67,7 @@ void CTurbomachineryState::ComputeState(CFluidModel& fluidModel, const CTurbomac
   Entropy = fluidModel.GetEntropy();
   Enthalpy = fluidModel.GetStaticEnergy() + Pressure / Density;
   su2double soundSpeed = fluidModel.GetSoundSpeed();
+  Temperature = fluidModel.GetTemperature();
 
   /*--- Compute total TD quantities ---*/
   TotalEnthalpy = Enthalpy + 0.5 * GetVelocityValue() * GetVelocityValue();
@@ -84,7 +85,7 @@ void CTurbomachineryState::ComputeState(CFluidModel& fluidModel, const CTurbomac
   su2double tangVel2 = TangVelocity * TangVelocity;
   RelVelocity.assign(Velocity.begin(), Velocity.end());
   RelVelocity[1] -= TangVelocity;
-  su2double relVel2 = GetRelVelocityValue();
+  su2double relVel2 = GetRelVelocityValue()*GetRelVelocityValue();
   FlowAngle = atan(RelVelocity[1] / RelVelocity[0]);
   RelMach.assign(RelVelocity.begin(), RelVelocity.end());
   std::for_each(RelMach.begin(), RelMach.end(), [&](su2double& el) { el /= soundSpeed; });
