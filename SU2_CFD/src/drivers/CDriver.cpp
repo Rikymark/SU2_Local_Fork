@@ -2736,6 +2736,13 @@ void CDriver::Turbomachinery_Preprocessing(CConfig** config, CGeometry**** geome
   }
   if (rank == MASTER_NODE) cout<<"Max number of span-wise sections among all zones: "<< nSpanMax<<"."<< endl;
 
+  if (nSpanMax == 0) {
+  if (rank == MASTER_NODE) {
+    cout << "WARNING: No span-wise sections detected. "
+         << "Skipping turbomachinery preprocessing for dry-run/dummy geometry." << endl;
+  }
+  return;
+}
 
   if (rank == MASTER_NODE) cout<<"Initialize solver containers for average and performance quantities." << endl;
   for (iZone = 0; iZone < nZone; iZone++) {
