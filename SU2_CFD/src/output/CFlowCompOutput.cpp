@@ -624,6 +624,9 @@ void CFlowCompOutput::LoadTurboHistoryData(std::shared_ptr<CTurbomachineryStageP
     SetHistoryOutputValue("RelFlowAngleOut_" + tag.str(), BladePerf->GetOutletState().GetFlowAngle()*180/PI_NUMBER);
     SetHistoryOutputValue("KineticEnergyLoss_" + tag.str(), BladePerf->GetKineticEnergyLoss());
     SetHistoryOutputValue("TotPressureLoss_" + tag.str(), BladePerf->GetTotalPressureLoss());
+
+    /*std::ofstream file("turbo_debug_output.txt", std::ios::app);
+    file << BladePerf->GetTotalPressureLoss() << "\n"; */
   }
   SetHistoryOutputValue("EntropyGeneration", TurboStagePerf->GetNormEntropyGen()*100);
   SetHistoryOutputValue("EulerianWork", TurboStagePerf->GetEulerianWork());

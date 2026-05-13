@@ -66,6 +66,7 @@ void CTurbomachineryState::ComputeState(CFluidModel& fluidModel, const CTurbomac
   Entropy = fluidModel.GetEntropy();
   Enthalpy = fluidModel.GetStaticEnergy() + Pressure / Density;
   su2double soundSpeed = fluidModel.GetSoundSpeed();
+  Temperature = fluidModel.GetTemperature();
 
   /*--- Compute total TD quantities ---*/
   TotalEnthalpy = Enthalpy + 0.5 * GetVelocityValue() * GetVelocityValue();
@@ -75,6 +76,10 @@ void CTurbomachineryState::ComputeState(CFluidModel& fluidModel, const CTurbomac
 
   /*--- Compute absolute kinematic quantities---*/
   MassFlow = Density * Velocity[0] * Area;
+
+  /*std::ofstream file("turbo_debug_mdot.txt", std::ios::app);
+    file << MassFlow << "," <<  Density  << "," << Velocity[0] << "," << Area << "\n"; */
+
   AbsFlowAngle = atan(Velocity[1] / Velocity[0]);
   Mach.assign(Velocity.begin(), Velocity.end());
   std::for_each(Mach.begin(), Mach.end(), [&](su2double& el) { el /= soundSpeed; });
@@ -83,7 +88,7 @@ void CTurbomachineryState::ComputeState(CFluidModel& fluidModel, const CTurbomac
   su2double tangVel2 = TangVelocity * TangVelocity;
   RelVelocity.assign(Velocity.begin(), Velocity.end());
   RelVelocity[1] -= TangVelocity;
-  su2double relVel2 = GetRelVelocityValue();
+  su2double relVel2 = GetRelVelocityValue()*GetRelVelocityValue();
   FlowAngle = atan(RelVelocity[1] / RelVelocity[0]);
   RelMach.assign(RelVelocity.begin(), RelVelocity.end());
   std::for_each(RelMach.begin(), RelMach.end(), [&](su2double& el) { el /= soundSpeed; });
@@ -92,6 +97,11 @@ void CTurbomachineryState::ComputeState(CFluidModel& fluidModel, const CTurbomac
   Rothalpy = Enthalpy + 0.5 * relVel2 - 0.5 * tangVel2;
   fluidModel.SetTDState_hs(Rothalpy, Entropy);
   TotalRelPressure = fluidModel.GetPressure();
+
+  /*std::ofstream file("turbo_debug_th.txt", std::ios::app);
+  file << "Pt,rel" << "," <<  "Rothalpy" << "," << "W" << "," << "Pt" << "," <<  "h_t"<< "," << "V"<< "," << "h" << "," << "U"<< "," <<  "Wn" << "," <<  "Wt" << "," <<  "Vn" << "," <<  "Vt" <<"\n";
+  file <<TotalRelPressure  << "," <<  Rothalpy << "," << GetRelVelocityValue() << "," << TotalPressure << "," <<  TotalEnthalpy << "," << GetVelocityValue() << "," << Enthalpy << "," << TangVelocity << "," <<  RelVelocity[0] << "," <<  RelVelocity[1] << "," <<  Velocity[0] << "," <<  Velocity[1] <<"\n";
+  */
 
   /*--- Compute isentropic quantities ---*/
   fluidModel.SetTDState_Ps(Pressure, Entropy);
@@ -126,7 +136,12 @@ void CTurbineBladePerformance::ComputePerformance(const CTurbomachineryCombinedP
   TotalPressureLoss = (InletState.GetTotalRelPressure() - OutletState.GetTotalRelPressure()) /
                       (OutletState.GetTotalRelPressure() - OutletState.GetPressure());
   KineticEnergyLoss = 2 * (OutletState.GetEnthalpy() - enthalpyOutIs) / relVelOutIs2;
+
+  /* std::ofstream file("turbo_debug.txt", std::ios::app);
+  file <<InletState.GetTotalRelPressure() << "," <<  OutletState.GetTotalRelPressure() << "," << OutletState.GetPressure() << "," <<  TotalPressureLoss  << "\n";
+  */
 }
+
 
 CCompressorBladePerformance::CCompressorBladePerformance(CFluidModel& fluidModel, unsigned short nDim, su2double areaIn,
                                                          su2double radiusIn, su2double areaOut, su2double radiusOut)

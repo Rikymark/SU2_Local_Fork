@@ -9535,12 +9535,16 @@ void CEulerSolver::MixedOut_Average(CConfig *config, su2double val_init_pressure
     pressure_mix += relax_factor*dx;
 
     iter += 1;
+    
     if ( abs(resdl) <= toll ) {
       break;
     }
 
   }
+  
   density_mix = val_Averaged_Flux[0]*val_Averaged_Flux[0]/(val_Averaged_Flux[1] - pressure_mix);
+
+  
 
 }
 
