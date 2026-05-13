@@ -95,8 +95,14 @@ void CTurbomachineryState::ComputeState(CFluidModel& fluidModel, const CTurbomac
   fluidModel.SetTDState_hs(Rothalpy, Entropy);
   TotalRelPressure = fluidModel.GetPressure();
 
+  /*std::ofstream file("turbo_debug_th.txt", std::ios::app);
+  file << "Pt,rel" << "," <<  "Rothalpy" << "," << "W" << "," << "Pt" << "," <<  "h_t"<< "," << "V"<< "," << "h" << "," << "U"<< "," <<  "Wn" << "," <<  "Wt" << "," <<  "Vn" << "," <<  "Vt" <<"\n";
+  file <<TotalRelPressure  << "," <<  Rothalpy << "," << GetRelVelocityValue() << "," << TotalPressure << "," <<  TotalEnthalpy << "," << GetVelocityValue() << "," << Enthalpy << "," << TangVelocity << "," <<  RelVelocity[0] << "," <<  RelVelocity[1] << "," <<  Velocity[0] << "," <<  Velocity[1] <<"\n";
+
+  */
   /*--- Compute isentropic quantities ---*/
   fluidModel.SetTDState_Ps(Pressure, Entropy);
+
 }
 
 CTurbomachineryBladePerformance::CTurbomachineryBladePerformance(CFluidModel& fluidModel, unsigned short nDim,
