@@ -2098,9 +2098,9 @@ void COutput::SetCommonHistoryFields() {
 
   /// BEGIN_GROUP: WALL_TIME, DESCRIPTION: Wall-clock timing information.
   /// DESCRIPTION: The current iteration wall-clock time.
-  AddHistoryOutput("ITER_TIME", "Time(sec)", ScreenOutputFormat::FIXED, "WALL_TIME", "Time per iteration (s)");
+  AddHistoryOutput("ITER_TIME", "Iter_Time(sec)", ScreenOutputFormat::FIXED, "ITER_TIME", "Time per iteration (s)");
   /// DESCRIPTION: Currently used wall-clock time.
-  AddHistoryOutput("WALL_TIME", "Time(sec)", ScreenOutputFormat::SCIENTIFIC, "WALL_TIME", "Average wall-clock time since the start of inner iterations.");
+  AddHistoryOutput("WALL_TIME", "Wall_Time(sec)", ScreenOutputFormat::SCIENTIFIC, "WALL_TIME", "Average wall-clock time since the start of inner iterations.");
   /// END_GROUP
 
   AddHistoryOutput("NONPHYSICAL_POINTS", "Nonphysical_Points", ScreenOutputFormat::INTEGER, "NONPHYSICAL_POINTS", "The number of non-physical points in the solution");

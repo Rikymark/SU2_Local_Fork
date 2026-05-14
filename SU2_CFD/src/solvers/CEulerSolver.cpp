@@ -9174,6 +9174,10 @@ void CEulerSolver::TurboAverageProcess(CSolver **solver, CGeometry *geometry, CC
       TotalAreaRelTangVel += Area*(TurboVelocity[1] - TurboGridVelocity[1]);
       TotalTangFlux += Area*Density*TurboVelocity[0]*(TurboVelocity[1] - TurboGridVelocity[1]);
 
+      /*std::ofstream file("turbo_debug_vel_Euler_solver.txt", std::ios::app);
+      file << "Vt" << "," <<  "Wt" << "," << "U" << "\n";
+      file <<TurboVelocity[1]   << "," << TurboVelocity[1] - TurboGridVelocity[1]  << "," << TurboGridVelocity[1] << "\n";*/
+
       /*--- Compute turbulent integral quantities for the boundary of interest ---*/
 
       if(turbulent){
@@ -9510,6 +9514,7 @@ void CEulerSolver::MixedOut_Average(CConfig *config, su2double val_init_pressure
 
   /*--- Newton-Raphson's method with central difference formula ---*/
   unsigned short iter{0};
+  su2double resdl=0.0 ;
   while ( iter <= maxiter ) {
 
     const su2double density_mix = val_Averaged_Flux[0]*val_Averaged_Flux[0]/(val_Averaged_Flux[1] - pressure_mix);
@@ -9532,6 +9537,7 @@ void CEulerSolver::MixedOut_Average(CConfig *config, su2double val_init_pressure
     const su2double df = -val_Averaged_Flux[0]*(dhdP - 1/density_mix) - dhdrho*density_mix*density_mix/val_Averaged_Flux[0];
     const su2double dx = -f/df;
     const su2double resdl = dx/val_init_pressure;
+    //resdl = dx/val_init_pressure;
     pressure_mix += relax_factor*dx;
 
     iter += 1;
@@ -9542,6 +9548,10 @@ void CEulerSolver::MixedOut_Average(CConfig *config, su2double val_init_pressure
 
   }
   
+  /*std::ofstream file("turbo_debug_newton.txt", std::ios::app);
+  file << "Pmix" << "," <<  "iter" << "," << "err"  <<"\n";
+  file <<pressure_mix << "," <<  iter << "," << resdl<< "\n"; */
+
   density_mix = val_Averaged_Flux[0]*val_Averaged_Flux[0]/(val_Averaged_Flux[1] - pressure_mix);
 
   
