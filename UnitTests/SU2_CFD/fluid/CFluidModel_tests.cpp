@@ -30,6 +30,7 @@
 #include "../../../SU2_CFD/include/fluid/CFluidModel.hpp"
 #include "../../../SU2_CFD/include/fluid/CIdealGas.hpp"
 #include "../../../SU2_CFD/include/fluid/CDataDrivenFluid.hpp"
+#include "../../../SU2_CFD/include/fluid/CPengRobinson.hpp"
 
 void FluidModelChecks(CFluidModel* fluid_model, const su2double val_p, const su2double val_T) {
   /*--- Check consistency of reverse look-up ---*/
@@ -116,6 +117,51 @@ TEST_CASE("Test case for data-driven fluid model") {
   /*--- Check fluid model consistency for several combinations of pressure-temperature. ---*/
   FluidModelChecks(fluid_model, 1.83e6, 523.0);
   FluidModelChecks(fluid_model, 2e5, 520.0);
+
+  delete config;
+  delete fluid_model;
+}
+
+TEST_CASE("Test case for entropy") {
+  std::stringstream config_options;
+
+  config_options << "SOLVER=RANS" << std::endl;
+  config_options << "KIND_TURB_MODEL=SA" << std::endl;
+  config_options << "SA_OPTIONS= NONE" << std::endl;
+  config_options << "REYNOLDS_NUMBER=1e6" << std::endl;
+  config_options << "FLUID_MODEL=PR_GAS" << std::endl;
+  config_options << "GAMMA_VALUE= 1.0244" << std::endl;
+  config_options << "GAS_CONSTANT= 51.2" << std::endl;
+  config_options << "CRITICAL_TEMPERATURE= 518.7" << std::endl;
+  config_options << "CRITICAL_PRESSURE= 19.311e5" << std::endl;
+  config_options << "ACENTRIC_FACTOR= 0.418" << std::endl;
+  config_options << "CONV_NUM_METHOD_FLOW=JST" << std::endl;
+  
+  su2double P=173326.5732;
+  su2double T=534.6683542;
+
+  su2double Pt=1383215.545;
+  su2double Tt=569.0595229;
+
+  /*--- Setup ---*/
+
+  CConfig* config = new CConfig(config_options, SU2_COMPONENT::SU2_CFD, false);
+
+  /*--- Define fluid model ---*/
+  
+  CPengRobinson* fluid_model = new CPengRobinson(config->GetGamma(), config->GetGas_Constant(), config->GetPressure_Critical(),
+                                               config->GetTemperature_Critical(),
+                                               config->GetAcentric_Factor());
+
+  /*--- Check fluid model consistency for several combinations of pressure-temperature. ---*/
+  fluid_model->SetTDState_PT(P, T);
+  su2double s_static=fluid_model->GetEntropy();
+
+  fluid_model->SetTDState_PT(Pt, Tt);
+  su2double s_tot=fluid_model->GetEntropy();
+
+  cout << "s compute with P,T=" << s_static << " J/(kgK)"<< endl;
+  cout << "s compute with Pt,Tt=" << s_tot << " J/(kgK)"<< endl;
 
   delete config;
   delete fluid_model;
