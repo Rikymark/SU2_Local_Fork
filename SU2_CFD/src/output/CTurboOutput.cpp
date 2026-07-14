@@ -132,6 +132,7 @@ void CTurbineBladePerformance::ComputePerformance(const CTurbomachineryCombinedP
 
   /*--- Compute performance ---*/
   EntropyGen = (OutletState.GetEntropy() - InletState.GetEntropy()); 
+  NormEntropyGen= (OutletState.GetEntropy() - InletState.GetEntropy())/InletState.GetEntropy(); 
   EulerianWork = InletState.GetTotalEnthalpy() - OutletState.GetTotalEnthalpy();
   TotalPressureLoss = (InletState.GetTotalRelPressure() - OutletState.GetTotalRelPressure()) /
                       (OutletState.GetTotalRelPressure() - OutletState.GetPressure());
@@ -160,6 +161,7 @@ void CCompressorBladePerformance::ComputePerformance(const CTurbomachineryCombin
 
   /*--- Compute performance ---*/
   EntropyGen = (OutletState.GetEntropy() - InletState.GetEntropy());
+  NormEntropyGen= (OutletState.GetEntropy() - InletState.GetEntropy())/InletState.GetEntropy(); 
   EulerianWork = OutletState.GetTotalEnthalpy() - InletState.GetTotalEnthalpy();
   TotalPressureLoss = (InletState.GetTotalRelPressure() - OutletState.GetTotalRelPressure()) /
                       (InletState.GetTotalRelPressure() - InletState.GetPressure());
@@ -237,7 +239,7 @@ su2double CTurboOutput::GetObjectiveValue(unsigned short kind) const {
    *    selects the representative blade performance for objective function evaluation. ---*/
   const auto& perf = BladesPerformances.back();
   switch (kind) {
-    case ENTROPY_GENERATION:  return perf->GetEntropyGen();
+    case ENTROPY_GENERATION:  return perf->GetNormEntropyGen()*100;
     case TOTAL_PRESSURE_LOSS: return perf->GetTotalPressureLoss();
     case KINETIC_ENERGY_LOSS: return perf->GetKineticEnergyLoss();
     default:                  return 0.0;

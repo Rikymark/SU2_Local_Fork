@@ -161,7 +161,7 @@ class CTurbomachineryBladePerformance {
  protected:
   CTurbomachineryState InletState;
   CTurbomachineryState OutletState;
-  su2double KineticEnergyLoss, TotalPressureLoss, EntropyGen, PressureRatio, EulerianWork;
+  su2double KineticEnergyLoss, TotalPressureLoss, EntropyGen, NormEntropyGen, PressureRatio, EulerianWork;
   CFluidModel& FluidModel;
 
  public:
@@ -180,6 +180,8 @@ class CTurbomachineryBladePerformance {
   const su2double& GetTotalPressureLoss() const { return TotalPressureLoss; }
 
   const su2double& GetEntropyGen() const { return EntropyGen; }
+
+  const su2double GetNormEntropyGen() const { return NormEntropyGen; }
 
   const su2double& GetPressureRatio() const { return PressureRatio; }
 
