@@ -9529,6 +9529,9 @@ void CEulerSolver::MixedOut_Average(CConfig *config, su2double val_init_pressure
   /*--- Newton-Raphson's method with central difference formula ---*/
   unsigned short iter{0};
   su2double resdl=0.0 ;
+  su2vector <su2double> res_history_local; /*!< \brief Pointers to variables where the relative error of each Newton iteration is saved. */
+  res_history_local.resize(maxiter )=su2double(-1.0);
+
   while ( iter <= maxiter ) {
 
     const su2double density_mix = val_Averaged_Flux[0]*val_Averaged_Flux[0]/(val_Averaged_Flux[1] - pressure_mix);
@@ -9550,8 +9553,9 @@ void CEulerSolver::MixedOut_Average(CConfig *config, su2double val_init_pressure
     const su2double f = val_Averaged_Flux[nDim+1] - val_Averaged_Flux[0]*(enthalpy_mix + velsq/2);
     const su2double df = -val_Averaged_Flux[0]*(dhdP - 1/density_mix) - dhdrho*density_mix*density_mix/val_Averaged_Flux[0];
     const su2double dx = -f/df;
-    const su2double resdl = dx/val_init_pressure;
-    //resdl = dx/val_init_pressure;
+    //const su2double resdl = dx/val_init_pressure;
+    resdl = dx/val_init_pressure;
+    res_history_local[iter] = resdl;
     pressure_mix += relax_factor*dx;
 
     iter += 1;
@@ -9562,14 +9566,27 @@ void CEulerSolver::MixedOut_Average(CConfig *config, su2double val_init_pressure
 
   }
   
-  /*std::ofstream file("turbo_debug_newton.txt", std::ios::app);
-  file << "Pmix" << "," <<  "iter" << "," << "err"  <<"\n";
-  file <<pressure_mix << "," <<  iter << "," << resdl<< "\n"; */
+  const int rank = SU2_MPI::GetRank();
+
+  /*std::ofstream probe(
+      "turbo_reached_rank_" + std::to_string(rank) + ".txt",
+      std::ios::app
+  );
+
+  probe << "Reached debug block\n";*/
+
+  /*if (rank== 1) {
+    std::ofstream file("turbo_debug_newton.txt", std::ios::app);
+    file << "Pmix" << "," <<  "iter" << "," << "err"  <<"\n";
+    file <<pressure_mix << "," <<  iter << "," << std::scientific << std::setprecision(12) << resdl<< "\n"; 
+    file << "Res history";
+    for (unsigned long i = 0; i < res_history_local.size(); ++i) {
+      file << "," << res_history_local[i];
+    }
+    file << "\n"; 
+  }*/
 
   density_mix = val_Averaged_Flux[0]*val_Averaged_Flux[0]/(val_Averaged_Flux[1] - pressure_mix);
-
-  
-
 }
 
 void CEulerSolver::GatherInOutAverageValues(CConfig *config, CGeometry *geometry){
